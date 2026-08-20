@@ -268,7 +268,7 @@
                         <div class="w-36">
                             <select id="filter-factory-avg-type" onchange="onFactorySearchChange()" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-blue-500 focus:border-blue-500 text-slate-800 transition">
                                 <option value="ALL">ค่าเฉลี่ย: ทั้งหมด</option>
-                                <option value="GREATER_ZERO">มากกว่า 0 (&gt; 0)</option>
+                                <option value="GREATER_ZERO" selected>มากกว่า 0 (&gt; 0)</option>
                                 <option value="EQUAL_ZERO">เท่ากับ 0 (= 0)</option>
                             </select>
                         </div>
@@ -442,28 +442,38 @@
 
             let headerRowIndex = -1;
             let plantColIdx = -1;
+            let fcplnoColIdx = -1;
 
             const plantAliases = ['โรงงาน', 'plant', 'factory', 'สาขา', 'หน่วยงาน'];
+            const fcplnoAliases = ['fcplno', 'fcpl', 'plantcode', 'plantno', 'รหัสโรงงาน', 'รหัส'];
 
             for (let r = 0; r < Math.min(10, rawMatrix.length); r++) {
                 let row = rawMatrix[r];
                 if (!Array.isArray(row)) continue;
                 for (let c = 0; c < row.length; c++) {
                     let cellStr = String(row[c] || '').trim().toLowerCase();
-                    if (plantAliases.some(a => cellStr.includes(a))) {
+                    if (plantColIdx === -1 && plantAliases.some(a => cellStr.includes(a))) {
                         headerRowIndex = r;
                         plantColIdx = c;
-                        break;
+                    }
+                    if (fcplnoColIdx === -1 && fcplnoAliases.some(a => cellStr.includes(a))) {
+                        headerRowIndex = r;
+                        fcplnoColIdx = c;
                     }
                 }
                 if (headerRowIndex !== -1) break;
             }
 
-            if (headerRowIndex !== -1 && plantColIdx !== -1) {
+            if (headerRowIndex !== -1 && (plantColIdx !== -1 || fcplnoColIdx !== -1)) {
                 for (let r = headerRowIndex + 1; r < rawMatrix.length; r++) {
                     let row = rawMatrix[r];
-                    if (row && row[plantColIdx] !== undefined) {
+                    if (!row) continue;
+                    if (plantColIdx !== -1 && row[plantColIdx] !== undefined) {
                         let val = String(row[plantColIdx]).trim();
+                        if (val) excluded.add(val);
+                    }
+                    if (fcplnoColIdx !== -1 && row[fcplnoColIdx] !== undefined) {
+                        let val = String(row[fcplnoColIdx]).trim();
                         if (val) excluded.add(val);
                     }
                 }
@@ -492,6 +502,7 @@
             let headerRowIndex = -1;
             const entAliases = ['กิจการ', 'enterprise', 'ent', 'กลุ่มกิจการ', 'เขต'];
             const compAliases = ['บริษัท', 'company', 'comp', 'สังกัด'];
+            const fcplnoAliases = ['fcplno', 'fcpl', 'plantcode', 'plantno', 'รหัสโรงงาน', 'รหัส'];
             const plantAliases = ['โรงงาน', 'plant', 'factory', 'สาขา', 'หน่วยงาน'];
             const typeAliases = ['type', 'ประเภท', 'ชนิด'];
             const gradeAliases = ['grade', 'เกรด', 'ชั้นคุณภาพ'];
@@ -513,7 +524,7 @@
 
             let headerRow = rawMatrix[headerRowIndex].map(c => String(c).trim());
 
-            let entCol = -1, compCol = -1, plantCol = -1, typeCol = -1, gradeCol = -1, monthCol = -1, volCol = -1;
+            let entCol = -1, compCol = -1, fcplnoCol = -1, plantCol = -1, typeCol = -1, gradeCol = -1, monthCol = -1, volCol = -1;
             let wideMonthCols = {};
 
             headerRow.forEach((colName, idx) => {
@@ -522,6 +533,7 @@
 
                 if (entCol === -1 && entAliases.some(a => cleanName.includes(a))) entCol = idx;
                 else if (compCol === -1 && compAliases.some(a => cleanName.includes(a))) compCol = idx;
+                else if (fcplnoCol === -1 && fcplnoAliases.some(a => cleanName.includes(a))) fcplnoCol = idx;
                 else if (plantCol === -1 && plantAliases.some(a => cleanName.includes(a))) plantCol = idx;
                 else if (typeCol === -1 && typeAliases.some(a => cleanName.includes(a))) typeCol = idx;
                 else if (gradeCol === -1 && gradeAliases.some(a => cleanName.includes(a))) gradeCol = idx;
@@ -543,6 +555,7 @@
 
                 let ent = entCol !== -1 ? String(row[entCol] || '').trim() : '';
                 let comp = compCol !== -1 ? cleanCompanyName(String(row[compCol] || '').trim()) : '';
+                let fcplno = fcplnoCol !== -1 ? String(row[fcplnoCol] || '').trim() : '';
                 let plant = plantCol !== -1 ? String(row[plantCol] || '').trim() : '';
                 let type = typeCol !== -1 ? String(row[typeCol] || '').trim() : 'Type Standard';
                 let grade = gradeCol !== -1 ? String(row[gradeCol] || '').trim() : 'Grade A';
@@ -557,6 +570,7 @@
                         records.push({
                             enterprise: ent || 'ไม่ระบุกิจการ',
                             company: comp || 'ไม่ระบุบริษัท',
+                            fcplno: fcplno,
                             plant: plant || 'ไม่ระบุโรงงาน',
                             type: type || 'Type Standard',
                             grade: grade || 'Grade A',
@@ -571,6 +585,7 @@
                         records.push({
                             enterprise: ent || 'ไม่ระบุกิจการ',
                             company: comp || 'ไม่ระบุบริษัท',
+                            fcplno: fcplno,
                             plant: plant || 'ไม่ระบุโรงงาน',
                             type: type || 'Type Standard',
                             grade: grade || 'Grade A',
@@ -689,6 +704,7 @@
 
                     factoryData.push({
                         factoryName: r.plant,
+                        fcplno: r.fcplno,
                         company: r.company,
                         enterprise: r.enterprise,
                         type: r.type,
@@ -717,6 +733,7 @@
                 if (r.month) {
                     factoryData.push({
                         factoryName: r.plant,
+                        fcplno: r.fcplno,
                         company: r.company,
                         enterprise: r.enterprise,
                         type: r.type,
@@ -1304,20 +1321,64 @@
             const selectedTopTenEnt = document.getElementById('top-ten-enterprise-filter')?.value || 'ALL';
 
             let compMap = {};
+            let compMap2025 = {};
             filteredFactory.forEach(item => {
                 if (selectedTopTenEnt !== 'ALL' && item.enterprise !== selectedTopTenEnt) return;
                 let c = item.company || 'N/A';
                 compMap[c] = (compMap[c] || 0) + (item.prod2026 || 0);
+                compMap2025[c] = (compMap2025[c] || 0) + (item.prod2025 || 0);
             });
 
             let sorted = Object.entries(compMap)
-                .map(([company, val]) => ({ company, val: Math.round(val) }))
+                .map(([company, val]) => ({ company, val: Math.round(val), val2025: Math.round(compMap2025[company] || 0) }))
                 .sort((a, b) => b.val - a.val)
                 .slice(0, 10);
 
             const rawLabels = sorted.map(i => i.company);
             const wrappedLabels = rawLabels.map(l => wrapText(l, 20));
             const data = sorted.map(i => i.val);
+            const growthData = sorted.map(i => {
+                if (i.val2025 > 0) return ((i.val - i.val2025) / i.val2025) * 100;
+                return i.val > 0 ? 100 : 0;
+            });
+
+            const maxVal = data.length ? Math.max(...data) : 0;
+
+            const topTenGrowthBadgePlugin = {
+                id: 'topTenGrowthBadgePlugin',
+                afterDatasetsDraw(chart) {
+                    const { ctx } = chart;
+                    const meta = chart.getDatasetMeta(0);
+                    meta.data.forEach((bar, i) => {
+                        const g = growthData[i];
+                        if (g === undefined || g === null) return;
+
+                        const text = `${g >= 0 ? '+' : ''}${g.toFixed(1)}%`;
+                        const badgeH = 18;
+                        ctx.save();
+                        ctx.font = 'bold 10.5px Prompt, sans-serif';
+                        const textWidth = ctx.measureText(text).width;
+                        const badgeW = textWidth + 16;
+                        const x = bar.x + 8;
+                        const y = bar.y;
+
+                        ctx.fillStyle = g >= 0 ? '#10b981' : '#ef4444';
+                        ctx.beginPath();
+                        if (ctx.roundRect) {
+                            ctx.roundRect(x, y - badgeH / 2, badgeW, badgeH, 5);
+                        } else {
+                            ctx.rect(x, y - badgeH / 2, badgeW, badgeH);
+                        }
+                        ctx.fill();
+
+                        ctx.fillStyle = '#ffffff';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(text, x + badgeW / 2, y + 1);
+                        ctx.restore();
+                    });
+                }
+            };
 
             topTenChartInstance = new Chart(ctx, {
                 type: 'bar',
@@ -1330,10 +1391,14 @@
                         borderRadius: 6
                     }]
                 },
+                plugins: [topTenGrowthBadgePlugin],
                 options: {
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
+                    layout: {
+                        padding: { right: 70 }
+                    },
                     plugins: {
                         legend: { display: false },
                         datalabels: {
@@ -1345,7 +1410,7 @@
                         }
                     },
                     scales: {
-                        x: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                        x: { beginAtZero: true, grid: { color: '#f1f5f9' }, suggestedMax: maxVal * 1.15 },
                         y: { 
                             grid: { display: false },
                             ticks: {
@@ -1363,23 +1428,31 @@
 
             filteredFactory.forEach(item => {
                 let fname = item.factoryName || 'ไม่ระบุโรงงาน';
-                
-                if (globalData.excludedFactories && globalData.excludedFactories.has(fname)) {
-                    return; 
+                let code = (item.fcplno || '').trim();
+
+                // ใช้รหัส FCPLNO เป็นตัวจับคู่หลัก (แม่นยำกว่าชื่อโรงงานที่อาจสะกดต่างกันเล็กน้อย)
+                // หากไม่มีรหัส จะ fallback ไปใช้ชื่อโรงงานแทน
+                const groupKey = code || fname;
+
+                if (globalData.excludedFactories) {
+                    if ((code && globalData.excludedFactories.has(code)) || globalData.excludedFactories.has(fname)) {
+                        return;
+                    }
                 }
 
                 monthsPresent.add(item.month);
-                if (!factoryAgg[fname]) {
-                    factoryAgg[fname] = {
+                if (!factoryAgg[groupKey]) {
+                    factoryAgg[groupKey] = {
                         factoryName: fname,
+                        fcplno: code,
                         enterprise: item.enterprise,
                         company: item.company,
                         total2026: 0,
                         total2025: 0
                     };
                 }
-                factoryAgg[fname].total2026 += item.prod2026 || 0;
-                factoryAgg[fname].total2025 += item.prod2025 || 0;
+                factoryAgg[groupKey].total2026 += item.prod2026 || 0;
+                factoryAgg[groupKey].total2025 += item.prod2025 || 0;
             });
 
             let monthCount = monthsPresent.size || 1;
@@ -1494,7 +1567,9 @@
                 `;
             } else {
                 pageItems.forEach((f, idx) => {
-                    const growthColorClass = f.growthPct >= 0 ? 'text-emerald-600' : 'text-rose-600';
+                    const growthBoxClass = f.growthPct >= 0
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : 'bg-rose-50 text-rose-700 border-rose-200';
                     const growthIcon = f.growthPct >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
                     const growthText = `${f.growthPct >= 0 ? '+' : ''}${f.growthPct.toFixed(1)}%`;
                     tbody.innerHTML += `
@@ -1509,8 +1584,8 @@
                                 </span>
                             </td>
                             <td class="py-2 px-3 text-right">
-                                <span class="inline-flex items-center gap-1 font-bold ${growthColorClass}">
-                                    <i class="fa-solid ${growthIcon} text-[10px]"></i>${growthText}
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold border ${growthBoxClass}">
+                                    <i class="fa-solid ${growthIcon} text-[9px]"></i>${growthText}
                                 </span>
                             </td>
                         </tr>
