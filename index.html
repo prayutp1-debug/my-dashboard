@@ -619,27 +619,31 @@
         }
 
         async function loadDefaultExcelFromRepo() {
-            try {
-                // ชื่อไฟล์ Excel ที่วางไว้ใน GitHub Repository (เช่น DashboardSaleAI_2.xlsx หรือ data.xlsx)
-                const excelFilename = 'DashboardSaleAI_2.xlsx'; 
-                let response = await fetch(excelFilename);
-                if (!response.ok) {
-                    // ลองสำรองหาชื่อมาตรฐานอีกชื่อ เช่น data.xlsx หากไม่พบไฟล์แรก
-                    response = await fetch('data.xlsx');
-                }
-                if (!response.ok) throw new Error('ไม่พบไฟล์ Excel ใน Repository');
-                
-                let arrayBuffer = await response.arrayBuffer();
-                let data = new Uint8Array(arrayBuffer);
-                let workbook = XLSX.read(data, { type: 'array' });
+            // รายชื่อไฟล์ Excel ที่จะลองโหลดตามลำดับ (ต้องวางไฟล์นี้ไว้โฟลเดอร์เดียวกับ index.html ใน Repo)
+            const candidateFilenames = ['DashboardSaleAI.xlsx', 'DashboardSaleAI_2.xlsx', 'data.xlsx'];
+            // เติม timestamp กัน browser/GitHub Pages cache ไฟล์เก่าไว้ ทำให้เห็นข้อมูลล่าสุดเสมอ
+            const cacheBuster = `?t=${Date.now()}`;
 
-                processWorkbookData(workbook, 'GitHub Repo');
-                showToast('โหลดข้อมูลจาก GitHub สำเร็จ', 'ดึงข้อมูลล่าสุดจาก Repository อัตโนมัติ', true);
-            } catch (err) {
-                console.log('ยังไม่มีไฟล์ Excel บน Repo หรือโหลดไม่สำเร็จ ใช้ Mock Data เริ่มต้น', err);
-                // หากรันแบบ Local หรือยังไม่วางไฟล์ จะ fallback มาใช้ Mock Data อัตโนมัติ
-                loadMockDataFallback();
+            for (const filename of candidateFilenames) {
+                try {
+                    const response = await fetch(filename + cacheBuster, { cache: 'no-store' });
+                    if (!response.ok) continue;
+
+                    const arrayBuffer = await response.arrayBuffer();
+                    const data = new Uint8Array(arrayBuffer);
+                    const workbook = XLSX.read(data, { type: 'array' });
+
+                    processWorkbookData(workbook, 'GitHub Repo');
+                    showToast('โหลดข้อมูลจาก GitHub สำเร็จ', `ดึงข้อมูลล่าสุดจาก ${filename} อัตโนมัติ`, true);
+                    return;
+                } catch (err) {
+                    console.log(`โหลดไฟล์ ${filename} ไม่สำเร็จ`, err);
+                }
             }
+
+            console.log('ยังไม่พบไฟล์ Excel ใน Repository ใช้ Mock Data เริ่มต้น');
+            // หากรันแบบ Local หรือยังไม่วางไฟล์ จะ fallback มาใช้ Mock Data อัตโนมัติ
+            loadMockDataFallback();
         }
 
         function processExcelData(records2026, records2025, recordsPlan, excludedFactories = new Set(), sourceName = '') {
@@ -1672,7 +1676,7 @@
         }
 
         function initApp() {
-            // โหลดไฟล์ Excel อัตโนมัติจาก GitHub Repository (ชื่อ DashboardSaleAI_2.xlsx หรือ data.xlsx)
+            // โหลดไฟล์ Excel อัตโนมัติจาก GitHub Repository (ชื่อ DashboardSaleAI.xlsx เป็นอันดับแรก)
             loadDefaultExcelFromRepo();
 
             document.getElementById('excel-file').addEventListener('change', handleFileUpload);
