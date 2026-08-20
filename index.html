@@ -282,12 +282,12 @@
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
-                                <th class="py-2.5 px-3 font-semibold">ลำดับ</th>
                                 <th class="py-2.5 px-3 font-semibold">กิจการ</th>
                                 <th class="py-2.5 px-3 font-semibold">บริษัท</th>
                                 <th class="py-2.5 px-3 font-semibold">โรงงาน</th>
                                 <th class="py-2.5 px-3 font-semibold text-right">รวม 2026</th>
                                 <th class="py-2.5 px-3 font-semibold text-right">เฉลี่ย/ด.</th>
+                                <th class="py-2.5 px-3 font-semibold text-right">Growth</th>
                             </tr>
                         </thead>
                         <tbody id="factory-table-body" class="divide-y divide-slate-100 text-xs text-slate-700">
@@ -426,6 +426,14 @@
             return isNaN(num) ? 0 : num;
         }
 
+        function cleanCompanyName(name) {
+            if (!name) return name;
+            // ตัดคำนำหน้าชื่อบริษัท เช่น บจก., หจก., บมจ., หสม. ออก (มี/ไม่มีจุดต่อท้ายก็ตัดได้)
+            return String(name)
+                .replace(/^(บจก\.?|บมจ\.?|หจก\.?|หสม\.?)\s*/i, '')
+                .trim();
+        }
+
         function parseStatusSheet(sheet) {
             let excluded = new Set();
             if (!sheet) return excluded;
@@ -534,7 +542,7 @@
                 if (!row || row.length === 0) continue;
 
                 let ent = entCol !== -1 ? String(row[entCol] || '').trim() : '';
-                let comp = compCol !== -1 ? String(row[compCol] || '').trim() : '';
+                let comp = compCol !== -1 ? cleanCompanyName(String(row[compCol] || '').trim()) : '';
                 let plant = plantCol !== -1 ? String(row[plantCol] || '').trim() : '';
                 let type = typeCol !== -1 ? String(row[typeCol] || '').trim() : 'Type Standard';
                 let grade = gradeCol !== -1 ? String(row[gradeCol] || '').trim() : 'Grade A';
@@ -707,6 +715,16 @@
 
             records2025.forEach(r => {
                 if (r.month) {
+                    factoryData.push({
+                        factoryName: r.plant,
+                        company: r.company,
+                        enterprise: r.enterprise,
+                        type: r.type,
+                        grade: r.grade,
+                        month: r.month,
+                        prod2025: r.volume
+                    });
+
                     let key = `${r.enterprise}___${r.company}___${r.type || 'Type Standard'}___${r.month}`;
                     if (!monthlyAgg[key]) {
                         monthlyAgg[key] = { enterprise: r.enterprise, company: r.company, type: r.type || 'Type Standard', month: r.month, prod2025: 0, prod2026: 0, plan2026: 0 };
@@ -1331,7 +1349,7 @@
                         y: { 
                             grid: { display: false },
                             ticks: {
-                                font: { size: 10 }
+                                font: { size: 13 }
                             }
                         }
                     }
@@ -1356,20 +1374,27 @@
                         factoryName: fname,
                         enterprise: item.enterprise,
                         company: item.company,
-                        total2026: 0
+                        total2026: 0,
+                        total2025: 0
                     };
                 }
                 factoryAgg[fname].total2026 += item.prod2026 || 0;
+                factoryAgg[fname].total2025 += item.prod2025 || 0;
             });
 
             let monthCount = monthsPresent.size || 1;
 
             let lowFactories = Object.values(factoryAgg).map(f => {
                 let avg = f.total2026 / monthCount;
+                let growthPct = f.total2025 > 0
+                    ? ((f.total2026 - f.total2025) / f.total2025) * 100
+                    : (f.total2026 > 0 ? 100 : 0);
                 return {
                     ...f,
                     avgMonthly: Math.round(avg),
-                    total2026: Math.round(f.total2026)
+                    total2026: Math.round(f.total2026),
+                    total2025: Math.round(f.total2025),
+                    growthPct: growthPct
                 };
             }).filter(f => f.avgMonthly < 500);
 
@@ -1469,10 +1494,11 @@
                 `;
             } else {
                 pageItems.forEach((f, idx) => {
-                    const rowNum = startIdx + idx + 1;
+                    const growthColorClass = f.growthPct >= 0 ? 'text-emerald-600' : 'text-rose-600';
+                    const growthIcon = f.growthPct >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+                    const growthText = `${f.growthPct >= 0 ? '+' : ''}${f.growthPct.toFixed(1)}%`;
                     tbody.innerHTML += `
                         <tr class="hover:bg-slate-50/80 transition">
-                            <td class="py-2 px-3 font-medium text-slate-500">${rowNum}</td>
                             <td class="py-2 px-3 text-slate-800 truncate max-w-[100px]" title="${f.enterprise || '-'}">${f.enterprise || '-'}</td>
                             <td class="py-2 px-3 text-slate-800 truncate max-w-[120px]" title="${f.company || '-'}">${f.company || '-'}</td>
                             <td class="py-2 px-3 font-medium text-slate-900 truncate max-w-[100px]" title="${f.factoryName || '-'}">${f.factoryName || '-'}</td>
@@ -1480,6 +1506,11 @@
                             <td class="py-2 px-3 text-right">
                                 <span class="inline-block px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
                                     ${f.avgMonthly.toLocaleString('en-US')}
+                                </span>
+                            </td>
+                            <td class="py-2 px-3 text-right">
+                                <span class="inline-flex items-center gap-1 font-bold ${growthColorClass}">
+                                    <i class="fa-solid ${growthIcon} text-[10px]"></i>${growthText}
                                 </span>
                             </td>
                         </tr>
