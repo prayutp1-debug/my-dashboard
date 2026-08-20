@@ -641,9 +641,28 @@
                 }
             }
 
-            console.log('ยังไม่พบไฟล์ Excel ใน Repository ใช้ Mock Data เริ่มต้น');
-            // หากรันแบบ Local หรือยังไม่วางไฟล์ จะ fallback มาใช้ Mock Data อัตโนมัติ
-            loadMockDataFallback();
+            console.log('ไม่พบไฟล์ Excel ใน Repository');
+            showToast(
+                'ไม่พบไฟล์ข้อมูล',
+                'หาไฟล์ DashboardSaleAI.xlsx ใน Repository ไม่เจอ กรุณาตรวจสอบว่าอัปโหลดไฟล์และตั้งชื่อถูกต้อง หรือเลือกไฟล์ด้วยตนเองจากปุ่มด้านบน',
+                false
+            );
+            renderEmptyState();
+        }
+
+        function renderEmptyState() {
+            // เคลียร์ข้อมูลทั้งหมด ไม่แสดงข้อมูลปลอม (Mock Data) อีกต่อไป
+            globalData = {
+                monthly: [],
+                factory: [],
+                enterprises: [],
+                companyMap: {},
+                types: [],
+                excludedFactories: new Set()
+            };
+            populateEnterpriseDropdown();
+            populateTypeDropdown();
+            updateDashboard();
         }
 
         function processExcelData(records2026, records2025, recordsPlan, excludedFactories = new Set(), sourceName = '') {
@@ -733,110 +752,6 @@
             if (sourceName && sourceName !== 'GitHub Repo') {
                 showToast('นำเข้าข้อมูลสำเร็จ', `อ่านข้อมูลจากไฟล์ ${sourceName} เรียบร้อย`, true);
             }
-        }
-
-        function loadMockDataFallback() {
-            const enterprises = ["1-Metro", "2-East", "3-North", "4-South", "5-West"];
-            const companies = {
-                "1-Metro": ["บริษัท เมโทร คอนกรีต จำกัด", "บริษัท กรุงเทพ ซีเมนต์ จำกัด", "บริษัท เอเชียแมตทีเรียล จำกัด"],
-                "2-East": ["บริษัท บูรพา ผลิตภัณฑ์คอนกรีต จำกัด", "บริษัท ชลบุรี ซัพพลาย จำกัด"],
-                "3-North": ["บริษัท นครล้านนา ซีเมนต์ จำกัด", "บริษัท เชียงใหม่บล็อก จำกัด"],
-                "4-South": ["บริษัท ปักษ์ใต้ คอนกรีต จำกัด", "บริษัท อ่าวไทย เคมีภัณฑ์ จำกัด"],
-                "5-West": ["บริษัท ตะวันตก โพลีเมอร์ จำกัด", "บริษัท สุพรรณบุรี อินดัสทรี จำกัด"]
-            };
-            const types = ["Stand Alone", "Network"];
-            const grades = ["เกรด A", "เกรด B", "เกรด C", "เกรด D"];
-            const factoryNames = [
-                "โรงงานบางนา", "โรงงานมาบตาพุด", "โรงงานเชียงใหม่", "โรงงานหาดใหญ่", 
-                "โรงงานอยุธยา", "โรงงานระยอง", "โรงงานลำปาง", "โรงงานขอนแก่น", 
-                "โรงงานสงขลา", "โรงงานฉะเชิงเทรา", "โรงงานปทุมธานี", "โรงงานราชบุรี"
-            ];
-
-            const target2026Total = 2466655;
-            const target2025Total = 2315000;
-            const targetPlanTotal = 2520000;
-            const monthWeights = [0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.09, 0.09, 0.09, 0.08, 0.08, 0.09]; 
-
-            let factory = [];
-            let tempMonthly = [];
-            let unscaled2026 = 0;
-
-            for (let m = 1; m <= 12; m++) {
-                let mWeight = monthWeights[m - 1];
-                let compIdx = 0;
-                enterprises.forEach(ent => {
-                    companies[ent].forEach(comp => {
-                        let fname = factoryNames[compIdx % factoryNames.length];
-                        let t = types[compIdx % types.length];
-                        let g = grades[compIdx % grades.length];
-                        compIdx++;
-
-                        let baseVal = (compIdx * 1000 + 5000) * mWeight;
-                        unscaled2026 += baseVal;
-
-                        tempMonthly.push({
-                            enterprise: ent,
-                            company: comp,
-                            factoryName: fname,
-                            type: t,
-                            grade: g,
-                            month: m,
-                            baseVal: baseVal
-                        });
-                    });
-                });
-            }
-
-            const scale26 = target2026Total / unscaled2026;
-            const scale25 = target2025Total / unscaled2026;
-            const scalePlan = targetPlanTotal / unscaled2026;
-
-            let monthlyAgg = {};
-            tempMonthly.forEach(item => {
-                let val26 = Math.round(item.baseVal * scale26);
-                let val25 = Math.round(item.baseVal * scale25);
-                let valPlan = Math.round(item.baseVal * scalePlan);
-
-                factory.push({
-                    factoryName: item.factoryName,
-                    company: item.company,
-                    enterprise: item.enterprise,
-                    type: item.type,
-                    grade: item.grade,
-                    month: item.month,
-                    prod2026: val26
-                });
-
-                let key = `${item.enterprise}___${item.company}___${item.type}___${item.month}`;
-                if (!monthlyAgg[key]) {
-                    monthlyAgg[key] = {
-                        enterprise: item.enterprise,
-                        company: item.company,
-                        type: item.type,
-                        month: item.month,
-                        prod2025: 0,
-                        prod2026: 0,
-                        plan2026: 0
-                    };
-                }
-                monthlyAgg[key].prod2025 += val25;
-                monthlyAgg[key].prod2026 += val26;
-                monthlyAgg[key].plan2026 += valPlan;
-            });
-
-            globalData = {
-                monthly: Object.values(monthlyAgg),
-                factory: factory,
-                enterprises: enterprises,
-                companyMap: companies,
-                types: types,
-                excludedFactories: new Set()
-            };
-
-            document.getElementById('filter-end-month').value = getMaxMonthWithData();
-            populateEnterpriseDropdown();
-            populateTypeDropdown();
-            updateDashboard();
         }
 
         function getFilteredData() {
