@@ -253,7 +253,7 @@
                         <div>
                             <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
                                 <i class="fa-solid fa-warehouse text-indigo-600"></i>
-                                <span>6. ตารางยอดผลิตรายโรงงาน (&lt; 500 ลบ.ม.)</span>
+                                <span>6. ตารางยอดผลิตรายโรงงาน</span>
                             </h2>
                         </div>
                         <span id="factory-count-badge" class="self-start sm:self-auto bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1.5 rounded-full">พบ 0 รายการ</span>
@@ -267,9 +267,8 @@
                         </div>
                         <div class="w-36">
                             <select id="filter-factory-avg-type" onchange="onFactorySearchChange()" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-blue-500 focus:border-blue-500 text-slate-800 transition">
-                                <option value="ALL">ค่าเฉลี่ย: ทั้งหมด</option>
-                                <option value="GREATER_ZERO" selected>มากกว่า 0 (&gt; 0)</option>
-                                <option value="EQUAL_ZERO">เท่ากับ 0 (= 0)</option>
+                                <option value="ALL" selected>ค่าเฉลี่ย: ทั้งหมด</option>
+                                <option value="LTE_500">น้อยกว่าหรือเท่ากับ 500</option>
                             </select>
                         </div>
                         <button id="btn-toggle-sort" onclick="toggleSortOrder()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-slate-300 transition flex items-center space-x-1">
@@ -1469,7 +1468,7 @@
                     total2025: Math.round(f.total2025),
                     growthPct: growthPct
                 };
-            }).filter(f => f.avgMonthly < 500);
+            });
 
             updateFactoryEnterpriseDropdown(lowFactories);
 
@@ -1479,10 +1478,8 @@
             }
 
             const avgFilterType = document.getElementById('filter-factory-avg-type')?.value || 'ALL';
-            if (avgFilterType === 'GREATER_ZERO') {
-                lowFactories = lowFactories.filter(f => f.avgMonthly > 0);
-            } else if (avgFilterType === 'EQUAL_ZERO') {
-                lowFactories = lowFactories.filter(f => f.avgMonthly === 0);
+            if (avgFilterType === 'LTE_500') {
+                lowFactories = lowFactories.filter(f => f.avgMonthly <= 500);
             }
 
             lowFactories.sort((a, b) => {
@@ -1561,7 +1558,7 @@
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="6" class="py-12 text-center text-slate-400">
-                            ไม่พบโรงงานที่มีค่าเฉลี่ยรายเดือน &lt; 500 ลบ.ม. ในเงื่อนไขที่เลือก
+                            ไม่พบข้อมูลโรงงานในเงื่อนไขที่เลือก
                         </td>
                     </tr>
                 `;
