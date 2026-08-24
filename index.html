@@ -27,6 +27,88 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
+    <!-- ============ LOGIN GATE ============ -->
+    <div id="login-gate" class="fixed inset-0 z-[9999] flex items-center justify-center p-5 bg-slate-100">
+        <div class="bg-white w-full max-w-md p-7 rounded-2xl border border-slate-100 card-shadow relative">
+            <button type="button" id="login-gate-close" class="hidden absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-lg leading-none">&times;</button>
+
+            <div class="flex items-center gap-3 mb-6">
+                <div class="bg-blue-600 text-white p-2.5 rounded-xl shadow-md flex items-center justify-center">
+                    <i class="fa-solid fa-chart-line text-xl"></i>
+                </div>
+                <div>
+                    <div class="text-lg font-bold text-slate-900">Production Executive Dashboard</div>
+                    <div class="text-xs text-slate-500">กรุณาเข้าสู่ระบบเพื่อดูข้อมูล</div>
+                </div>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <div id="login-form-view">
+                <div class="mb-3.5">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Username</label>
+                    <input type="text" id="login-username" placeholder="ชื่อผู้ใช้งาน" autocomplete="username" class="w-full bg-slate-50 border border-slate-300 rounded-lg text-sm p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                    <div class="text-[10.5px] text-slate-400 mt-1.5">ไม่ต้องใส่ @scg.com &bull; พิมพ์ตัวเล็กหรือตัวใหญ่ก็ได้</div>
+                </div>
+                <div class="mb-3.5">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Password</label>
+                    <div class="relative">
+                        <input type="password" id="login-password" placeholder="รหัสผ่าน" autocomplete="current-password" class="w-full bg-slate-50 border border-slate-300 rounded-lg text-sm p-2.5 focus:ring-blue-500 focus:border-blue-500" style="padding-right:42px;">
+                        <button type="button" class="pw-eye-btn absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg text-sm text-slate-400 hover:text-slate-700" data-target="login-password"><i class="fa-solid fa-eye"></i></button>
+                    </div>
+                </div>
+                <div class="mb-3.5">
+                    <label class="flex items-center gap-2 text-xs text-slate-500 cursor-pointer select-none">
+                        <input type="checkbox" id="login-remember-me" class="w-4 h-4 accent-blue-600"> จดจำฉัน
+                    </label>
+                </div>
+                <div class="text-xs text-rose-600 font-semibold min-h-[16px] mb-1" id="login-error"></div>
+                <div class="text-xs text-emerald-600 font-semibold min-h-[16px] mb-1" id="login-success"></div>
+                <button class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition mt-1" id="login-submit">เข้าสู่ระบบ</button>
+                <div class="text-center mt-4">
+                    <button class="text-xs text-blue-600 underline font-semibold" id="show-reset-link">เปลี่ยนรหัสผ่าน</button>
+                </div>
+            </div>
+
+            <!-- RESET PASSWORD FORM -->
+            <div id="login-reset-view" class="hidden">
+                <div class="mb-3.5">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Username</label>
+                    <input type="text" id="reset-username" placeholder="ชื่อผู้ใช้งาน" autocomplete="username" class="w-full bg-slate-50 border border-slate-300 rounded-lg text-sm p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="mb-3.5">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">รหัสผ่านเดิม</label>
+                    <div class="relative">
+                        <input type="password" id="reset-old-password" placeholder="รหัสผ่านปัจจุบัน" autocomplete="current-password" class="w-full bg-slate-50 border border-slate-300 rounded-lg text-sm p-2.5 focus:ring-blue-500 focus:border-blue-500" style="padding-right:42px;">
+                        <button type="button" class="pw-eye-btn absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg text-sm text-slate-400 hover:text-slate-700" data-target="reset-old-password"><i class="fa-solid fa-eye"></i></button>
+                    </div>
+                </div>
+                <div class="mb-3.5">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">รหัสผ่านใหม่</label>
+                    <div class="relative">
+                        <input type="password" id="reset-new-password" placeholder="รหัสผ่านใหม่" autocomplete="new-password" class="w-full bg-slate-50 border border-slate-300 rounded-lg text-sm p-2.5 focus:ring-blue-500 focus:border-blue-500" style="padding-right:42px;">
+                        <button type="button" class="pw-eye-btn absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg text-sm text-slate-400 hover:text-slate-700" data-target="reset-new-password"><i class="fa-solid fa-eye"></i></button>
+                    </div>
+                </div>
+                <div class="mb-3.5">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">ยืนยันรหัสผ่านใหม่</label>
+                    <div class="relative">
+                        <input type="password" id="reset-confirm-password" placeholder="พิมพ์รหัสผ่านใหม่อีกครั้ง" autocomplete="new-password" class="w-full bg-slate-50 border border-slate-300 rounded-lg text-sm p-2.5 focus:ring-blue-500 focus:border-blue-500" style="padding-right:42px;">
+                        <button type="button" class="pw-eye-btn absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg text-sm text-slate-400 hover:text-slate-700" data-target="reset-confirm-password"><i class="fa-solid fa-eye"></i></button>
+                    </div>
+                </div>
+                <div class="text-xs text-rose-600 font-semibold min-h-[16px] mb-1" id="reset-error"></div>
+                <div class="text-xs text-emerald-600 font-semibold min-h-[16px] mb-1" id="reset-success"></div>
+                <button class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition mt-1" id="reset-submit">เปลี่ยนรหัสผ่าน</button>
+                <div class="text-[10.5px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5 mt-3 leading-relaxed" id="reset-note">
+                    &#9888; การเปลี่ยนรหัสผ่านนี้มีผลเฉพาะเบราว์เซอร์นี้เท่านั้น ไม่ได้ซิงก์ไปยังเครื่อง/เบราว์เซอร์อื่น
+                </div>
+                <div class="text-center mt-4">
+                    <button class="text-xs text-blue-600 underline font-semibold" id="show-login-link">&larr; กลับไปหน้าเข้าสู่ระบบ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -41,14 +123,33 @@
             <div class="flex items-center space-x-3">
                 <label id="upload-label" for="excel-file" class="cursor-pointer bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 text-sm font-medium px-4 py-2 rounded-xl transition flex items-center space-x-2">
                     <i class="fa-solid fa-file-excel text-emerald-600 text-base"></i>
-                    <span id="file-name-display">เลือกไฟล์ Excel (หรือโหลดอัตโนมัติจาก GitHub)</span>
+                    <span id="file-name-display">เลือกไฟล์ Excel (เลือกได้หลายไฟล์ หรือโหลดอัตโนมัติจาก GitHub)</span>
                 </label>
-                <input type="file" id="excel-file" accept=".xlsx, .xls" class="hidden">
+                <input type="file" id="excel-file" accept=".xlsx, .xls" multiple class="hidden">
+                <div class="flex items-center gap-1 pl-2 border-l border-slate-200">
+                    <span id="login-user-chip" class="text-xs font-semibold text-slate-500 truncate max-w-[120px]"></span>
+                    <button id="btn-change-password" title="เปลี่ยนรหัสผ่าน" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition">
+                        <i class="fa-solid fa-key text-sm"></i>
+                    </button>
+                    <button id="btn-logout" title="ออกจากระบบ" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition">
+                        <i class="fa-solid fa-right-from-bracket text-sm"></i>
+                    </button>
+                </div>
             </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-11 flex items-center gap-1 border-t border-slate-100">
+            <button id="tab-btn-dashboard" onclick="switchTab('dashboard')" class="h-full px-4 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 transition">
+                <i class="fa-solid fa-industry mr-1.5"></i>แดชบอร์ดการผลิต
+            </button>
+            <button id="tab-btn-business-review" onclick="switchTab('business-review')" class="h-full px-4 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition">
+                <i class="fa-solid fa-chart-pie mr-1.5"></i>Business Review
+            </button>
         </div>
     </header>
 
-    <section class="bg-white border-b border-slate-200 py-3 sticky top-16 z-20 shadow-xs">
+    <div id="view-dashboard">
+
+    <section class="bg-white border-b border-slate-200 py-3 sticky top-[108px] z-20 shadow-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3 items-center">
                 <div>
@@ -304,6 +405,180 @@
             </div>
         </div>
     </main>
+    </div>
+    <!-- /view-dashboard -->
+
+    <div id="view-business-review" class="hidden">
+        <section class="bg-white border-b border-slate-200 py-3 sticky top-[108px] z-20 shadow-xs">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 items-end">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">กิจการ (Enterprise)</label>
+                        <select id="br-filter-enterprise" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2">
+                            <option value="ALL">ทั้งหมด (All Enterprises)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">บริษัท (Company)</label>
+                        <select id="br-filter-company" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2">
+                            <option value="">-- เลือกบริษัท --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">เดือนเริ่มต้น (Start Month)</label>
+                        <select id="br-filter-start-month" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2">
+                            <option value="1">มกราคม (Jan)</option>
+                            <option value="2">กุมภาพันธ์ (Feb)</option>
+                            <option value="3">มีนาคม (Mar)</option>
+                            <option value="4">เมษายน (Apr)</option>
+                            <option value="5">พฤษภาคม (May)</option>
+                            <option value="6">มิถุนายน (Jun)</option>
+                            <option value="7">กรกฎาคม (Jul)</option>
+                            <option value="8">สิงหาคม (Aug)</option>
+                            <option value="9">กันยายน (Sep)</option>
+                            <option value="10">ตุลาคม (Oct)</option>
+                            <option value="11">พฤศจิกายน (Nov)</option>
+                            <option value="12">ธันวาคม (Dec)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">เดือนสิ้นสุด (End Month)</label>
+                        <select id="br-filter-end-month" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2">
+                            <option value="1">มกราคม (Jan)</option>
+                            <option value="2">กุมภาพันธ์ (Feb)</option>
+                            <option value="3">มีนาคม (Mar)</option>
+                            <option value="4">เมษายน (Apr)</option>
+                            <option value="5">พฤษภาคม (May)</option>
+                            <option value="6">มิถุนายน (Jun)</option>
+                            <option value="7">กรกฎาคม (Jul)</option>
+                            <option value="8">สิงหาคม (Aug)</option>
+                            <option value="9">กันยายน (Sep)</option>
+                            <option value="10">ตุลาคม (Oct)</option>
+                            <option value="11">พฤศจิกายน (Nov)</option>
+                            <option value="12" selected>ธันวาคม (Dec)</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button id="br-btn-reset" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm py-2 px-4 rounded-lg transition flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-rotate-right"></i>
+                            <span>รีเซ็ตตัวกรอง</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow space-y-6">
+            <div id="br-empty-hint" class="bg-white rounded-2xl border border-slate-100 card-shadow p-14 text-center text-slate-400">
+                <i class="fa-solid fa-building-circle-arrow-right text-4xl mb-3"></i>
+                <p class="text-sm">กรุณาเลือกบริษัทที่ต้องการดูรายงาน Business Review จากตัวกรองด้านบน</p>
+            </div>
+
+            <div id="br-content" class="hidden space-y-6">
+                <!-- 2. ยอดขายภาพรวมบริษัท -->
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow p-6">
+                    <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+                        <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                            <i class="fa-solid fa-chart-column text-blue-600"></i>
+                            <span id="br-sales-overview-title">ยอดขายภาพรวมบริษัท (2025 vs PLAN 2026 vs 2026)</span>
+                        </h2>
+                        <button onclick="expandBRChart('sales-overview')" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 transition" title="ขยายกราฟ">
+                            <i class="fa-solid fa-expand text-xs"></i>
+                        </button>
+                    </div>
+
+                    <!-- Growth / Variance KPI cards (สไตล์เดียวกับแดชบอร์ดการผลิต) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow relative overflow-hidden">
+                            <div class="absolute right-3 top-3 text-amber-100 text-4xl pointer-events-none">
+                                <i class="fa-solid fa-chart-pie"></i>
+                            </div>
+                            <p class="text-xs font-semibold text-slate-400 tracking-wider uppercase">Growth (เทียบ 2025)</p>
+                            <div class="flex items-baseline mt-2 space-x-2">
+                                <h3 id="br-sales-growth-value" class="text-2xl font-bold text-slate-900">0.0%</h3>
+                            </div>
+                            <p id="br-sales-growth-sub" class="text-xs text-slate-500 mt-1">เติบโตจากปีก่อน</p>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow relative overflow-hidden">
+                            <div class="absolute right-3 top-3 text-rose-100 text-4xl pointer-events-none">
+                                <i class="fa-solid fa-scale-balanced"></i>
+                            </div>
+                            <p class="text-xs font-semibold text-slate-400 tracking-wider uppercase">Variance (เทียบ PLAN)</p>
+                            <div class="flex items-baseline mt-2 space-x-2">
+                                <h3 id="br-sales-variance-value" class="text-2xl font-bold text-slate-900">0.0%</h3>
+                            </div>
+                            <p id="br-sales-variance-sub" class="text-xs text-slate-500 mt-1">เทียบเป้าหมายแผน</p>
+                        </div>
+                    </div>
+
+                    <div style="height: 400px;"><canvas id="brSalesOverviewChart"></canvas></div>
+                </div>
+
+                <!-- 3. ยอดขายรายโรงงาน -->
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow p-6">
+                    <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2 mb-1">
+                        <i class="fa-solid fa-industry text-blue-600"></i>
+                        <span>ยอดขายรายโรงงาน (2025 vs PLAN 2026 vs 2026)</span>
+                    </h2>
+                    <p id="br-factory-sales-count" class="text-xs text-slate-400 mb-4">พบ 0 โรงงาน</p>
+                    <div id="br-factory-sales-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-5"></div>
+                </div>
+
+                <!-- 4. NPS ภาพรวมบริษัท -->
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow p-6">
+                    <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2 mb-1">
+                        <i class="fa-solid fa-face-smile text-emerald-600"></i>
+                        <span>NPS ภาพรวมบริษัท รายเดือน</span>
+                    </h2>
+                    <p class="text-xs text-slate-400 mb-4">ตัวเลขสีแดง = NPS ต่ำกว่า 75%</p>
+                    <div style="height: 300px;"><canvas id="brNpsOverviewChart"></canvas></div>
+                </div>
+
+                <!-- 5. NPS รายโรงงาน -->
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow p-6">
+                    <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2 mb-1">
+                        <i class="fa-solid fa-people-arrows text-emerald-600"></i>
+                        <span>NPS รายโรงงาน รายเดือน</span>
+                    </h2>
+                    <p id="br-factory-nps-count" class="text-xs text-slate-400 mb-4">พบ 0 โรงงาน &bull; ตัวเลขสีแดง = NPS ต่ำกว่า 75%</p>
+                    <div id="br-factory-nps-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-5"></div>
+                </div>
+
+                <!-- 6. คุณภาพ -->
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow p-6">
+                    <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2 mb-1">
+                        <i class="fa-solid fa-award text-amber-600"></i>
+                        <span>คุณภาพคอนกรีต รายโรงงาน</span>
+                    </h2>
+                    <p id="br-quality-count" class="text-xs text-slate-400 mb-1">พบ 0 โรงงาน</p>
+                    <div class="flex flex-wrap items-center gap-3 text-[11px] text-slate-500 mb-4">
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded" style="background:#A1F2A1"></span>สูงกว่าเกณฑ์</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded" style="background:#F5F97E"></span>ตามเกณฑ์</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded" style="background:#FAC090"></span>ค่อนข้างต่ำ</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded" style="background:#E9FAFF"></span>ปานกลาง</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded" style="background:#EF656C"></span>ต่ำกว่าเกณฑ์</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded" style="background:#A8A8A8"></span>ไม่มีข้อมูล/ไม่พอ</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mb-3">สีอ้างอิงตามเกณฑ์เดียวกับไฟล์ Quality.xlsx ต้นฉบับ</p>
+                    <div id="br-quality-grid" class="space-y-5"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- /view-business-review -->
+
+    <!-- Chart Expand Modal -->
+    <div id="chart-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-5xl relative shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <h3 id="chart-modal-title" class="text-base font-bold text-slate-900"></h3>
+                <button onclick="closeChartModal()" class="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div style="height: 70vh;"><canvas id="chart-modal-canvas"></canvas></div>
+        </div>
+    </div>
 
     <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-400">
@@ -329,7 +604,9 @@
             enterprises: [],
             companyMap: {},
             types: [],
-            excludedFactories: new Set()
+            excludedFactories: new Set(),
+            quality: [],
+            nps: []
         };
 
         let currentPage = 1;
@@ -342,6 +619,59 @@
         let typeChartInstance = null;
         let gradeChartInstance = null;
         let topTenChartInstance = null;
+
+        // Business Review chart instances
+        let brSalesOverviewChartInstance = null;
+        let brNpsOverviewChartInstance = null;
+        let brFactorySalesChartInstances = [];
+        let brFactoryNpsChartInstances = [];
+
+        // Chart expand-to-modal registry: key -> { title, type, labels, datasets, options }
+        let brChartRegistry = {};
+        let chartModalInstance = null;
+
+        // ค่า default ของ Business Review (ตั้งครั้งแรกที่มีข้อมูลเท่านั้น ไม่ทับการเลือกของผู้ใช้ในภายหลัง)
+        let brDefaultsApplied = false;
+        let brEndMonthUserSet = false;
+        const BR_DEFAULT_ENTERPRISE_HINT = 'East';
+        const BR_DEFAULT_COMPANY = 'หนองใหญ่คอนกรีต';
+
+        function openChartModal(key) {
+            const cfg = brChartRegistry[key];
+            if (!cfg) return;
+            const modal = document.getElementById('chart-modal');
+            const canvas = document.getElementById('chart-modal-canvas');
+            const titleEl = document.getElementById('chart-modal-title');
+            if (!modal || !canvas || !titleEl) return;
+
+            titleEl.textContent = cfg.title;
+            if (chartModalInstance) chartModalInstance.destroy();
+
+            const ctx = canvas.getContext('2d');
+            chartModalInstance = new Chart(ctx, {
+                type: cfg.type,
+                data: {
+                    labels: cfg.labels,
+                    datasets: cfg.datasets.map(d => ({ ...d }))
+                },
+                plugins: cfg.plugins || [],
+                options: { ...cfg.options, responsive: true, maintainAspectRatio: false }
+            });
+            modal.classList.remove('hidden');
+        }
+
+        function expandBRChart(key) {
+            openChartModal(key);
+        }
+
+        function closeChartModal() {
+            const modal = document.getElementById('chart-modal');
+            if (modal) modal.classList.add('hidden');
+            if (chartModalInstance) {
+                chartModalInstance.destroy();
+                chartModalInstance = null;
+            }
+        }
 
         const monthNames = [
             "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
@@ -606,24 +936,212 @@
             return null;
         }
 
-        function handleFileUpload(e) {
-            const file = e.target.files[0];
-            if (!file) return;
+        // ===== Business Review: Quality.xlsx parser =====
+        // โครงสร้างไฟล์: แต่ละโรงงานมีแถว header (มีชื่อโรงงานในคอลัมน์ G รูปแบบ "รหัส : ชื่อ")
+        // ตามด้วยแถวข้อมูลราย metric (จำนวนก้อนปูน, Margin, SD, Cpk, ระดับคุณภาพ) โดยคอลัมน์ A คือรหัส FCPLNO
+        function parseQualityWorkbook(workbook) {
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            if (!sheet) return [];
+            const matrix = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null });
+            if (!matrix || matrix.length < 2) return [];
 
-            document.getElementById('file-name-display').innerText = file.name;
+            const header = matrix[0].map(h => String(h || '').trim());
+            let typeColIdx = header.findIndex(h => h.includes('ประเภท'));
+            if (typeColIdx === -1) return [];
+            let plantColIdx = header.findIndex(h => h.includes('โรงงาน'));
 
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    const data = new Uint8Array(evt.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    processWorkbookData(workbook, file.name);
-                } catch (err) {
-                    console.error('Error processing Excel file:', err);
-                    showToast('เกิดข้อผิดพลาดในการอ่านไฟล์', 'โปรดตรวจสอบว่าไฟล์เป็น Excel (.xlsx, .xls) ที่ถูกต้อง', false);
+            let monthCols = [];
+            header.forEach((h, idx) => {
+                if (idx <= typeColIdx) return;
+                let m = parseMonthValue(h);
+                if (m) monthCols.push({ idx, month: m });
+            });
+            if (monthCols.length === 0) return [];
+
+            // เก็บชื่อโรงงานจากแถว header กลุ่ม (รูปแบบ "รหัส : ชื่อ") ไว้ใช้สำรองกรณีไม่พบชื่อจากไฟล์ยอดขาย
+            let nameFromCode = {};
+            if (plantColIdx !== -1) {
+                for (let r = 1; r < matrix.length; r++) {
+                    let row = matrix[r];
+                    if (!row) continue;
+                    let plantCell = row[plantColIdx];
+                    if (plantCell && String(plantCell).includes(':')) {
+                        let parts = String(plantCell).split(':');
+                        let code = parts[0].trim();
+                        let name = parts.slice(1).join(':').trim();
+                        if (code) nameFromCode[code] = name;
+                    }
                 }
-            };
-            reader.readAsArrayBuffer(file);
+            }
+
+            let merged = {};
+            for (let r = 1; r < matrix.length; r++) {
+                let row = matrix[r];
+                if (!row) continue;
+                let code = row[0] ? String(row[0]).trim() : '';
+                let metricType = row[typeColIdx] ? String(row[typeColIdx]).trim() : '';
+                if (!code || !metricType) continue;
+
+                monthCols.forEach(mc => {
+                    let key = `${code}_${mc.month}`;
+                    if (!merged[key]) {
+                        merged[key] = {
+                            fcplno: code,
+                            month: mc.month,
+                            factoryName: nameFromCode[code] || null,
+                            count: null,
+                            margin: null,
+                            sd: null,
+                            cpk: null,
+                            qualityLevel: null
+                        };
+                    }
+                    let val = row[mc.idx];
+                    let num = parseFloat(val);
+                    if (metricType.includes('ก้อนปูน')) {
+                        merged[key].count = isNaN(num) ? null : num;
+                    } else if (metricType.includes('Margin')) {
+                        merged[key].margin = isNaN(num) ? null : num;
+                    } else if (metricType.includes('SD')) {
+                        merged[key].sd = isNaN(num) ? null : num;
+                    } else if (metricType === 'Cpk') {
+                        merged[key].cpk = isNaN(num) ? null : num;
+                    } else if (metricType.includes('ระดับ')) {
+                        merged[key].qualityLevel = (val !== null && val !== undefined && val !== '') ? String(val).trim() : null;
+                    }
+                });
+            }
+            return Object.values(merged);
+        }
+
+        // ===== Business Review: ReportNPS.xlsx parser (ใช้ sheet "NPS") =====
+        function parseNPSWorkbook(workbook) {
+            const sheet = workbook.Sheets['NPS'] || workbook.Sheets[workbook.SheetNames[0]];
+            if (!sheet) return [];
+            const matrix = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null });
+            if (!matrix || matrix.length < 2) return [];
+
+            const header = matrix[0].map(h => String(h || '').trim());
+            const headerLower = header.map(h => h.toLowerCase().replace(/\s+/g, ''));
+
+            let entIdx = headerLower.findIndex(h => h.includes('กิจการ'));
+            let compIdx = headerLower.findIndex(h => h.includes('บจก') || h.includes('หจก') || h.includes('company'));
+            let fcplnoIdx = headerLower.findIndex(h => h.includes('fcplno'));
+            let plantIdx = headerLower.findIndex(h => h.includes('โรงงาน') || h.includes('ชื่อโรงงาน'));
+
+            if (fcplnoIdx === -1) return [];
+
+            let monthCols = [];
+            header.forEach((h, idx) => {
+                let m = parseMonthValue(h);
+                if (m) monthCols.push({ idx, month: m });
+            });
+            if (monthCols.length === 0) return [];
+
+            let records = [];
+            for (let r = 1; r < matrix.length; r++) {
+                let row = matrix[r];
+                if (!row) continue;
+                let fcplno = String(row[fcplnoIdx] || '').trim();
+                if (!fcplno) continue;
+                let ent = entIdx !== -1 ? String(row[entIdx] || '').trim() : '';
+                let comp = compIdx !== -1 ? cleanCompanyName(String(row[compIdx] || '').trim()) : '';
+                let plant = plantIdx !== -1 ? String(row[plantIdx] || '').trim() : '';
+
+                monthCols.forEach(mc => {
+                    let val = row[mc.idx];
+                    if (val === null || val === undefined || val === '') return;
+                    let num = parseFloat(val);
+                    if (isNaN(num)) return;
+                    records.push({ enterprise: ent, company: comp, fcplno: fcplno, factoryName: plant, month: mc.month, nps: num });
+                });
+            }
+            return records;
+        }
+
+        function readFileAsWorkbook(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function (evt) {
+                    try {
+                        const data = new Uint8Array(evt.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        resolve(workbook);
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+                reader.onerror = () => reject(new Error('อ่านไฟล์ไม่สำเร็จ'));
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        // เดาประเภทไฟล์จากชื่อไฟล์ก่อน ถ้าไม่ชัดเจนค่อยดูโครงสร้าง Sheet ภายใน
+        function detectWorkbookType(workbook, filename) {
+            const fname = (filename || '').toLowerCase();
+            if (fname.includes('nps')) return 'nps';
+            if (fname.includes('quality')) return 'quality';
+            if (fname.includes('dashboardsale') || fname.includes('sale')) return 'sales';
+
+            if (workbook.Sheets['NPS'] || workbook.Sheets['NPS-Score']) return 'nps';
+
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            if (firstSheet) {
+                const matrix = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: null });
+                if (matrix && matrix[0]) {
+                    const headerStr = matrix[0].map(h => String(h || '')).join('|');
+                    if (headerStr.includes('ประเภท') && headerStr.includes('คุณภาพ')) return 'quality';
+                }
+            }
+
+            return 'sales';
+        }
+
+        async function handleFileUpload(e) {
+            const files = Array.from(e.target.files || []);
+            if (files.length === 0) return;
+
+            document.getElementById('file-name-display').innerText = files.length === 1
+                ? files[0].name
+                : `เลือก ${files.length} ไฟล์: ${files.map(f => f.name).join(', ')}`;
+
+            let salesResult = null, qualityResult = null, npsResult = null;
+            let errors = [];
+
+            for (const file of files) {
+                try {
+                    const workbook = await readFileAsWorkbook(file);
+                    const type = detectWorkbookType(workbook, file.name);
+                    if (type === 'quality') qualityResult = { workbook, name: file.name };
+                    else if (type === 'nps') npsResult = { workbook, name: file.name };
+                    else salesResult = { workbook, name: file.name };
+                } catch (err) {
+                    console.error('Error processing Excel file:', file.name, err);
+                    errors.push(file.name);
+                }
+            }
+
+            let summary = [];
+            if (salesResult) {
+                processWorkbookData(salesResult.workbook, salesResult.name);
+                summary.push(`ยอดขาย (${salesResult.name})`);
+            }
+            if (qualityResult) {
+                globalData.quality = parseQualityWorkbook(qualityResult.workbook);
+                summary.push(`คุณภาพ (${qualityResult.name})`);
+            }
+            if (npsResult) {
+                globalData.nps = parseNPSWorkbook(npsResult.workbook);
+                summary.push(`NPS (${npsResult.name})`);
+            }
+
+            updateBusinessReview();
+
+            if (errors.length > 0) {
+                showToast('เกิดข้อผิดพลาดบางไฟล์', `ไม่สามารถอ่านไฟล์: ${errors.join(', ')} โปรดตรวจสอบว่าเป็น Excel (.xlsx, .xls) ที่ถูกต้อง`, false);
+            } else if (summary.length > 0) {
+                showToast('นำเข้าไฟล์สำเร็จ', `อ่านข้อมูล: ${summary.join(' • ')}`, true);
+            }
         }
 
         function processWorkbookData(workbook, sourceName = 'Excel') {
@@ -672,19 +1190,71 @@
             renderEmptyState();
         }
 
+        async function loadQualityFromRepo() {
+            const candidateFilenames = ['Quality.xlsx'];
+            const cacheBuster = `?t=${Date.now()}`;
+
+            for (const filename of candidateFilenames) {
+                try {
+                    const response = await fetch(filename + cacheBuster, { cache: 'no-store' });
+                    if (!response.ok) continue;
+
+                    const arrayBuffer = await response.arrayBuffer();
+                    const data = new Uint8Array(arrayBuffer);
+                    const workbook = XLSX.read(data, { type: 'array' });
+
+                    globalData.quality = parseQualityWorkbook(workbook);
+                    console.log(`โหลด ${filename} สำเร็จ (${globalData.quality.length} แถว)`);
+                    updateBusinessReview();
+                    return;
+                } catch (err) {
+                    console.log(`โหลดไฟล์ ${filename} ไม่สำเร็จ`, err);
+                }
+            }
+            console.log('ไม่พบไฟล์ Quality.xlsx ใน Repository (กราฟคุณภาพใน Business Review จะไม่แสดงข้อมูล)');
+        }
+
+        async function loadNPSFromRepo() {
+            const candidateFilenames = ['ReportNPS.xlsx'];
+            const cacheBuster = `?t=${Date.now()}`;
+
+            for (const filename of candidateFilenames) {
+                try {
+                    const response = await fetch(filename + cacheBuster, { cache: 'no-store' });
+                    if (!response.ok) continue;
+
+                    const arrayBuffer = await response.arrayBuffer();
+                    const data = new Uint8Array(arrayBuffer);
+                    const workbook = XLSX.read(data, { type: 'array' });
+
+                    globalData.nps = parseNPSWorkbook(workbook);
+                    console.log(`โหลด ${filename} สำเร็จ (${globalData.nps.length} แถว)`);
+                    updateBusinessReview();
+                    return;
+                } catch (err) {
+                    console.log(`โหลดไฟล์ ${filename} ไม่สำเร็จ`, err);
+                }
+            }
+            console.log('ไม่พบไฟล์ ReportNPS.xlsx ใน Repository (กราฟ NPS ใน Business Review จะไม่แสดงข้อมูล)');
+        }
+
         function renderEmptyState() {
-            // เคลียร์ข้อมูลทั้งหมด ไม่แสดงข้อมูลปลอม (Mock Data) อีกต่อไป
+            // เคลียร์ข้อมูลยอดผลิต ไม่แสดงข้อมูลปลอม (Mock Data) อีกต่อไป (คงข้อมูล Quality/NPS เดิมไว้ถ้าโหลดสำเร็จแล้ว)
             globalData = {
                 monthly: [],
                 factory: [],
                 enterprises: [],
                 companyMap: {},
                 types: [],
-                excludedFactories: new Set()
+                excludedFactories: new Set(),
+                quality: globalData.quality || [],
+                nps: globalData.nps || []
             };
             populateEnterpriseDropdown();
             populateTypeDropdown();
             updateDashboard();
+            populateBREnterpriseDropdown();
+            updateBusinessReview();
         }
 
         function processExcelData(records2026, records2025, recordsPlan, excludedFactories = new Set(), sourceName = '') {
@@ -751,6 +1321,17 @@
 
             recordsPlan.forEach(r => {
                 if (r.month) {
+                    factoryData.push({
+                        factoryName: r.plant,
+                        fcplno: r.fcplno,
+                        company: r.company,
+                        enterprise: r.enterprise,
+                        type: r.type,
+                        grade: r.grade,
+                        month: r.month,
+                        plan2026: r.volume
+                    });
+
                     let key = `${r.enterprise}___${r.company}___${r.type || 'Type Standard'}___${r.month}`;
                     if (!monthlyAgg[key]) {
                         monthlyAgg[key] = { enterprise: r.enterprise, company: r.company, type: r.type || 'Type Standard', month: r.month, prod2025: 0, prod2026: 0, plan2026: 0 };
@@ -775,13 +1356,20 @@
                 enterprises: Array.from(enterprisesSet),
                 companyMap: formattedCompanyMap,
                 types: Array.from(typesSet),
-                excludedFactories: excludedFactories
+                excludedFactories: excludedFactories,
+                quality: globalData.quality || [],
+                nps: globalData.nps || []
             };
 
             populateEnterpriseDropdown();
             populateTypeDropdown();
             document.getElementById('filter-end-month').value = getMaxMonthWithData();
             updateDashboard();
+            populateBREnterpriseDropdown();
+            if (!brEndMonthUserSet) {
+                document.getElementById('br-filter-end-month').value = getMaxMonthWithData();
+            }
+            updateBusinessReview();
 
             if (sourceName && sourceName !== 'GitHub Repo') {
                 showToast('นำเข้าข้อมูลสำเร็จ', `อ่านข้อมูลจากไฟล์ ${sourceName} เรียบร้อย`, true);
@@ -956,6 +1544,78 @@
                 }
             }
         };
+
+        // เวอร์ชันปรับขนาดได้ของ badge plugin (ใช้ใน Business Review ที่กราฟมีขนาดต่างกัน)
+        // dataset order ต้องเป็น [2025, PLAN2026, 2026] เหมือนกับ monthlyBadgesPlugin ด้านบน
+        function createMonthlyBadgesPlugin({ badgeW = 62, badgeH = 15, fontSize = 9.5, spacing = 2 } = {}) {
+            return {
+                id: 'monthlyBadgesPlugin',
+                afterDraw(chart) {
+                    const { ctx, scales } = chart;
+                    const monthCount = chart.data.labels.length;
+                    if (monthCount === 0 || !scales.x) return;
+
+                    const xAxis = scales.x;
+                    const ds2025 = chart.getDatasetMeta(0);
+                    const ds2026 = chart.getDatasetMeta(2);
+
+                    for (let i = 0; i < monthCount; i++) {
+                        const val2025 = chart.data.datasets[0].data[i] || 0;
+                        const valPlan = chart.data.datasets[1].data[i] || 0;
+                        const val2026 = chart.data.datasets[2].data[i] || 0;
+
+                        const varPct = valPlan > 0 ? ((val2026 - valPlan) / valPlan) * 100 : 0;
+                        const grwPct = val2025 > 0 ? ((val2026 - val2025) / val2025) * 100 : 0;
+
+                        const p2025 = ds2025.data[i];
+                        const p2026 = ds2026.data[i];
+                        if (!p2025 || !p2026) continue;
+
+                        const leftX = p2025.x - (p2025.width / 2);
+                        const rightX = p2026.x + (p2026.width / 2);
+                        const centerX = (leftX + rightX) / 2;
+
+                        ctx.save();
+                        ctx.font = `bold ${fontSize}px Prompt, sans-serif`;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+
+                        const varText = `Var ${varPct >= 0 ? '+' : ''}${varPct.toFixed(1)}%`;
+                        const grwText = `Grw ${grwPct >= 0 ? '+' : ''}${grwPct.toFixed(1)}%`;
+
+                        const varY = xAxis.bottom + 4;
+                        const grwY = varY + badgeH + spacing;
+
+                        ctx.fillStyle = varPct >= 0 ? '#10b981' : '#f43f5e';
+                        ctx.beginPath();
+                        if (ctx.roundRect) {
+                            ctx.roundRect(centerX - badgeW / 2, varY, badgeW, badgeH, 4);
+                        } else {
+                            ctx.rect(centerX - badgeW / 2, varY, badgeW, badgeH);
+                        }
+                        ctx.fill();
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillText(varText, centerX, varY + badgeH / 2);
+
+                        ctx.fillStyle = grwPct >= 0 ? '#10b981' : '#f43f5e';
+                        ctx.beginPath();
+                        if (ctx.roundRect) {
+                            ctx.roundRect(centerX - badgeW / 2, grwY, badgeW, badgeH, 4);
+                        } else {
+                            ctx.rect(centerX - badgeW / 2, grwY, badgeW, badgeH);
+                        }
+                        ctx.fill();
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillText(grwText, centerX, grwY + badgeH / 2);
+
+                        ctx.restore();
+                    }
+                }
+            };
+        }
+
+        const brMonthlyBadgesPluginLarge = createMonthlyBadgesPlugin({ badgeW: 62, badgeH: 15, fontSize: 9.5, spacing: 2 });
+        const brMonthlyBadgesPluginSmall = createMonthlyBadgesPlugin({ badgeW: 40, badgeH: 11, fontSize: 6.5, spacing: 1 });
 
         const enterpriseBadgesPlugin = {
             id: 'enterpriseBadgesPlugin',
@@ -1693,9 +2353,640 @@
             return new Date().getMonth() + 1;
         }
 
+        // ============================================================
+        // ===================  BUSINESS REVIEW  =====================
+        // ============================================================
+
+        const monthNamesShortTH = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+
+        function switchTab(tab) {
+            const dashBtn = document.getElementById('tab-btn-dashboard');
+            const brBtn = document.getElementById('tab-btn-business-review');
+            const dashView = document.getElementById('view-dashboard');
+            const brView = document.getElementById('view-business-review');
+            if (!dashBtn || !brBtn || !dashView || !brView) return;
+
+            const activeClasses = ['border-blue-600', 'text-blue-600'];
+            const inactiveClasses = ['border-transparent', 'text-slate-500'];
+
+            if (tab === 'business-review') {
+                dashView.classList.add('hidden');
+                brView.classList.remove('hidden');
+                dashBtn.classList.remove(...activeClasses);
+                dashBtn.classList.add(...inactiveClasses);
+                brBtn.classList.remove(...inactiveClasses);
+                brBtn.classList.add(...activeClasses);
+                updateBusinessReview();
+            } else {
+                brView.classList.add('hidden');
+                dashView.classList.remove('hidden');
+                brBtn.classList.remove(...activeClasses);
+                brBtn.classList.add(...inactiveClasses);
+                dashBtn.classList.remove(...inactiveClasses);
+                dashBtn.classList.add(...activeClasses);
+            }
+        }
+
+        function populateBREnterpriseDropdown() {
+            const sel = document.getElementById('br-filter-enterprise');
+            if (!sel) return;
+            const current = sel.value;
+            sel.innerHTML = '<option value="ALL">ทั้งหมด (All Enterprises)</option>';
+            (globalData.enterprises || []).slice().sort().forEach(ent => {
+                let opt = document.createElement('option');
+                opt.value = ent;
+                opt.textContent = ent;
+                sel.appendChild(opt);
+            });
+
+            if (!brDefaultsApplied) {
+                const defaultEnt = (globalData.enterprises || []).find(e => e.includes(BR_DEFAULT_ENTERPRISE_HINT));
+                if (defaultEnt) {
+                    sel.value = defaultEnt;
+                } else if (current && Array.from(sel.options).some(o => o.value === current)) {
+                    sel.value = current;
+                }
+            } else if (current && Array.from(sel.options).some(o => o.value === current)) {
+                sel.value = current;
+            }
+
+            populateBRCompanyDropdown();
+        }
+
+        function populateBRCompanyDropdown() {
+            const entSel = document.getElementById('br-filter-enterprise');
+            const compSel = document.getElementById('br-filter-company');
+            if (!entSel || !compSel) return;
+
+            const ent = entSel.value;
+            let companies = new Set();
+            if (ent === 'ALL') {
+                Object.values(globalData.companyMap || {}).forEach(arr => (arr || []).forEach(c => companies.add(c)));
+            } else {
+                (globalData.companyMap[ent] || []).forEach(c => companies.add(c));
+            }
+
+            const sortedCompanies = Array.from(companies).sort();
+            const currentVal = compSel.value;
+            compSel.innerHTML = '<option value="">-- เลือกบริษัท --</option>';
+            sortedCompanies.forEach(c => {
+                let opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                compSel.appendChild(opt);
+            });
+
+            if (!brDefaultsApplied) {
+                if (sortedCompanies.includes(BR_DEFAULT_COMPANY)) {
+                    compSel.value = BR_DEFAULT_COMPANY;
+                    brDefaultsApplied = true;
+                } else if (currentVal && sortedCompanies.includes(currentVal)) {
+                    compSel.value = currentVal;
+                }
+            } else if (currentVal && sortedCompanies.includes(currentVal)) {
+                compSel.value = currentVal;
+            }
+        }
+
+        function getBRMonthRange() {
+            let s = parseInt(document.getElementById('br-filter-start-month')?.value || '1', 10);
+            let e = parseInt(document.getElementById('br-filter-end-month')?.value || '12', 10);
+            if (s > e) { let tmp = s; s = e; e = tmp; }
+            return { start: s, end: e };
+        }
+
+        function updateBusinessReview() {
+            const compSel = document.getElementById('br-filter-company');
+            if (!compSel) return;
+
+            const selectedCompany = compSel.value;
+            const emptyHint = document.getElementById('br-empty-hint');
+            const content = document.getElementById('br-content');
+            if (!emptyHint || !content) return;
+
+            if (!selectedCompany) {
+                emptyHint.classList.remove('hidden');
+                content.classList.add('hidden');
+                return;
+            }
+            emptyHint.classList.add('hidden');
+            content.classList.remove('hidden');
+
+            const titleEl = document.getElementById('br-sales-overview-title');
+            if (titleEl) titleEl.textContent = `ยอดขายภาพรวมบริษัท: ${selectedCompany} (2025 vs PLAN 2026 vs 2026)`;
+
+            const { start, end } = getBRMonthRange();
+
+            // ---- ยอดขาย (ทุกโรงงานของบริษัทนี้) ----
+            const allCompanyFactoryRecords = (globalData.factory || []).filter(f => f.company === selectedCompany);
+            const companySalesInRange = allCompanyFactoryRecords.filter(f => f.month >= start && f.month <= end);
+
+            renderBRSalesOverview(companySalesInRange, start, end);
+            renderBRFactorySalesCharts(allCompanyFactoryRecords, start, end);
+
+            // ---- รหัส FCPLNO ของโรงงานทั้งหมดในบริษัทนี้ (ไว้ join กับ NPS/Quality) ----
+            const companyFcplnoSet = new Set();
+            const fcplnoToFactoryName = {};
+            allCompanyFactoryRecords.forEach(f => {
+                if (f.fcplno) {
+                    companyFcplnoSet.add(f.fcplno);
+                    if (!fcplnoToFactoryName[f.fcplno]) fcplnoToFactoryName[f.fcplno] = f.factoryName;
+                }
+            });
+
+            // ---- NPS ----
+            const companyNpsRecords = (globalData.nps || []).filter(n => companyFcplnoSet.has(n.fcplno) && n.month >= start && n.month <= end);
+            renderBRNpsOverview(companyNpsRecords, start, end);
+            renderBRFactoryNpsCharts(companyNpsRecords, fcplnoToFactoryName, start, end);
+
+            // ---- คุณภาพ ----
+            const companyQualityRecords = (globalData.quality || []).filter(q => companyFcplnoSet.has(q.fcplno) && q.month >= start && q.month <= end);
+            renderBRQualityTables(companyQualityRecords, fcplnoToFactoryName);
+        }
+
+        function buildFactorySalesMap(records) {
+            let map = {};
+            records.forEach(r => {
+                let key = r.fcplno || r.factoryName || 'ไม่ระบุโรงงาน';
+                if (!map[key]) map[key] = { name: r.factoryName || 'ไม่ระบุโรงงาน', data: {} };
+                if (!map[key].data[r.month]) map[key].data[r.month] = { prod2025: 0, prod2026: 0, plan2026: 0 };
+                map[key].data[r.month].prod2025 += r.prod2025 || 0;
+                map[key].data[r.month].prod2026 += r.prod2026 || 0;
+                map[key].data[r.month].plan2026 += r.plan2026 || 0;
+            });
+            return map;
+        }
+
+        function renderBRSalesOverview(records, start, end) {
+            const canvas = document.getElementById('brSalesOverviewChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if (brSalesOverviewChartInstance) brSalesOverviewChartInstance.destroy();
+
+            let monthlyMap = {};
+            for (let m = start; m <= end; m++) monthlyMap[m] = { prod2025: 0, prod2026: 0, plan2026: 0 };
+            records.forEach(r => {
+                if (!monthlyMap[r.month]) return;
+                monthlyMap[r.month].prod2025 += r.prod2025 || 0;
+                monthlyMap[r.month].prod2026 += r.prod2026 || 0;
+                monthlyMap[r.month].plan2026 += r.plan2026 || 0;
+            });
+
+            const labels = [];
+            const d2025 = [], d2026 = [], dPlan = [];
+            let totalProd2025 = 0, totalProd2026 = 0, totalPlan2026 = 0;
+            for (let m = start; m <= end; m++) {
+                labels.push(monthNames[m - 1]);
+                d2025.push(Math.round(monthlyMap[m].prod2025));
+                dPlan.push(Math.round(monthlyMap[m].plan2026));
+                d2026.push(Math.round(monthlyMap[m].prod2026));
+                totalProd2025 += monthlyMap[m].prod2025;
+                totalPlan2026 += monthlyMap[m].plan2026;
+                totalProd2026 += monthlyMap[m].prod2026;
+            }
+
+            // ---- Growth (2026 เทียบ 2025) และ Variance (2026 เทียบ PLAN 2026) แบบเดียวกับแดชบอร์ดการผลิต ----
+            const growthValueEl = document.getElementById('br-sales-growth-value');
+            if (growthValueEl) {
+                if (totalProd2025 > 0) {
+                    const growthPct = ((totalProd2026 - totalProd2025) / totalProd2025) * 100;
+                    growthValueEl.innerText = (growthPct >= 0 ? '+' : '') + growthPct.toFixed(1) + '%';
+                    growthValueEl.className = `text-2xl font-bold ${growthPct >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
+                } else {
+                    growthValueEl.innerText = '0.0%';
+                    growthValueEl.className = 'text-2xl font-bold text-slate-900';
+                }
+            }
+            const varianceValueEl = document.getElementById('br-sales-variance-value');
+            if (varianceValueEl) {
+                if (totalPlan2026 > 0) {
+                    const varPct = ((totalProd2026 - totalPlan2026) / totalPlan2026) * 100;
+                    varianceValueEl.innerText = (varPct >= 0 ? '+' : '') + varPct.toFixed(1) + '%';
+                    varianceValueEl.className = `text-2xl font-bold ${varPct >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
+                } else {
+                    varianceValueEl.innerText = '0.0%';
+                    varianceValueEl.className = 'text-2xl font-bold text-slate-900';
+                }
+            }
+
+            const datasets = [
+                { label: 'ยอดผลิต 2025', data: d2025, backgroundColor: '#cbd5e1', borderRadius: 4 },
+                { label: 'PLAN 2026', data: dPlan, backgroundColor: '#06b6d4', borderRadius: 4 },
+                { label: 'ยอดผลิต 2026', data: d2026, backgroundColor: '#2563eb', borderRadius: 4 }
+            ];
+            const options = {
+                responsive: true,
+                maintainAspectRatio: false,
+                barPercentage: 0.95,
+                categoryPercentage: 0.92,
+                layout: { padding: { bottom: 42, top: 10 } },
+                plugins: {
+                    legend: { position: 'top' },
+                    datalabels: {
+                        anchor: 'center',
+                        align: 'center',
+                        rotation: 270,
+                        color: '#1e293b',
+                        font: { weight: 'bold', size: 13 },
+                        formatter: (v) => v > 0 ? v.toLocaleString('en-US') : ''
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: true, grid: { color: '#f1f5f9' } }
+                }
+            };
+
+            brSalesOverviewChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: { labels, datasets },
+                plugins: [brMonthlyBadgesPluginLarge],
+                options
+            });
+
+            brChartRegistry['sales-overview'] = {
+                title: document.getElementById('br-sales-overview-title')?.textContent || 'ยอดขายภาพรวมบริษัท',
+                type: 'bar',
+                labels,
+                datasets,
+                options,
+                plugins: [brMonthlyBadgesPluginLarge]
+            };
+        }
+
+        function renderBRFactorySalesCharts(records, start, end) {
+            const grid = document.getElementById('br-factory-sales-grid');
+            const countLabel = document.getElementById('br-factory-sales-count');
+            if (!grid) return;
+
+            brFactorySalesChartInstances.forEach(c => c.destroy());
+            brFactorySalesChartInstances = [];
+            grid.innerHTML = '';
+
+            const map = buildFactorySalesMap(records);
+            let factories = Object.keys(map).map(key => {
+                let totalRange = 0;
+                for (let m = start; m <= end; m++) totalRange += (map[key].data[m]?.prod2026 || 0);
+                return { key, name: map[key].name, data: map[key].data, totalRange };
+            }).sort((a, b) => b.totalRange - a.totalRange);
+
+            if (countLabel) countLabel.textContent = `พบ ${factories.length} โรงงาน`;
+
+            if (factories.length === 0) {
+                grid.innerHTML = '<p class="text-sm text-slate-400 col-span-2 text-center py-6">ไม่พบข้อมูลยอดขายของบริษัทนี้</p>';
+                return;
+            }
+
+            factories.forEach((f, idx) => {
+                const canvasId = `br-factory-sales-${idx}`;
+                const chartKey = `sales-factory-${idx}`;
+                const card = document.createElement('div');
+                card.className = 'bg-slate-50 rounded-xl border border-slate-200 p-4 relative';
+                card.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <h4 class="text-xs font-bold text-slate-700 truncate" title="${f.name}">${f.name}</h4>
+                        <button onclick="expandBRChart('${chartKey}')" class="w-6 h-6 flex-shrink-0 flex items-center justify-center rounded-md bg-white hover:bg-slate-200 text-slate-500 border border-slate-200 transition" title="ขยายกราฟ">
+                            <i class="fa-solid fa-expand text-[10px]"></i>
+                        </button>
+                    </div>
+                    <div style="height: 260px;"><canvas id="${canvasId}"></canvas></div>
+                `;
+                grid.appendChild(card);
+
+                const labels = [];
+                const d2025 = [], d2026 = [], dPlan = [];
+                for (let m = start; m <= end; m++) {
+                    labels.push(monthNamesShortTH[m - 1]);
+                    let rec = f.data[m] || { prod2025: 0, prod2026: 0, plan2026: 0 };
+                    d2025.push(Math.round(rec.prod2025));
+                    dPlan.push(Math.round(rec.plan2026));
+                    d2026.push(Math.round(rec.prod2026));
+                }
+
+                const datasets = [
+                    { label: '2025', data: d2025, backgroundColor: '#cbd5e1', borderRadius: 3 },
+                    { label: 'PLAN 2026', data: dPlan, backgroundColor: '#06b6d4', borderRadius: 3 },
+                    { label: '2026', data: d2026, backgroundColor: '#2563eb', borderRadius: 3 }
+                ];
+                const options = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    barPercentage: 0.95,
+                    categoryPercentage: 0.92,
+                    layout: { padding: { bottom: 26, top: 6 } },
+                    plugins: {
+                        legend: { display: idx === 0, position: 'top', labels: { boxWidth: 10, font: { size: 9 } } },
+                        datalabels: {
+                            anchor: 'center',
+                            align: 'center',
+                            rotation: 270,
+                            color: '#1e293b',
+                            font: { weight: 'bold', size: 10 },
+                            formatter: (v) => v > 0 ? v.toLocaleString('en-US') : ''
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 9 } } },
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 9 } } }
+                    }
+                };
+
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                const chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels, datasets },
+                    plugins: [brMonthlyBadgesPluginSmall],
+                    options
+                });
+                brFactorySalesChartInstances.push(chart);
+
+                // ตอนขยายใน modal ใช้ badge ขนาดใหญ่ + bottom padding มากขึ้น เพราะพื้นที่กว้างกว่า
+                const expandedOptions = { ...options, layout: { padding: { bottom: 42, top: 10 } } };
+                brChartRegistry[chartKey] = {
+                    title: `ยอดขายรายเดือน: ${f.name}`,
+                    type: 'bar',
+                    labels,
+                    datasets,
+                    options: expandedOptions,
+                    plugins: [brMonthlyBadgesPluginLarge]
+                };
+            });
+        }
+
+        function renderBRNpsOverview(npsRecords, start, end) {
+            const canvas = document.getElementById('brNpsOverviewChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if (brNpsOverviewChartInstance) brNpsOverviewChartInstance.destroy();
+
+            let monthlySum = {};
+            let monthlyCount = {};
+            for (let m = start; m <= end; m++) { monthlySum[m] = 0; monthlyCount[m] = 0; }
+            npsRecords.forEach(r => {
+                if (monthlySum[r.month] === undefined) return;
+                monthlySum[r.month] += r.nps;
+                monthlyCount[r.month] += 1;
+            });
+
+            const labels = [];
+            const data = [];
+            for (let m = start; m <= end; m++) {
+                labels.push(monthNames[m - 1]);
+                data.push(monthlyCount[m] > 0 ? Math.round((monthlySum[m] / monthlyCount[m]) * 10) / 10 : null);
+            }
+
+            brNpsOverviewChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'NPS เฉลี่ย (%)',
+                        data,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#10b981',
+                        spanGaps: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            align: 'top',
+                            color: (ctx) => {
+                                const v = ctx.dataset.data[ctx.dataIndex];
+                                return (v !== null && v < 75) ? '#ef4444' : '#047857';
+                            },
+                            font: { weight: 'bold', size: 10 },
+                            formatter: (v) => v === null ? '' : `${v}%`
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true, max: 100, grid: { color: '#f1f5f9' } }
+                    }
+                }
+            });
+        }
+
+        function renderBRFactoryNpsCharts(npsRecords, fcplnoToFactoryName, start, end) {
+            const grid = document.getElementById('br-factory-nps-grid');
+            const countLabel = document.getElementById('br-factory-nps-count');
+            if (!grid) return;
+
+            brFactoryNpsChartInstances.forEach(c => c.destroy());
+            brFactoryNpsChartInstances = [];
+            grid.innerHTML = '';
+
+            let map = {};
+            npsRecords.forEach(r => {
+                let key = r.fcplno;
+                if (!map[key]) map[key] = { name: fcplnoToFactoryName[key] || r.factoryName || 'ไม่ระบุโรงงาน', data: {} };
+                map[key].data[r.month] = r.nps;
+            });
+
+            let factories = Object.keys(map).map(key => ({ key, name: map[key].name, data: map[key].data }))
+                .sort((a, b) => a.name.localeCompare(b.name, 'th'));
+
+            if (countLabel) countLabel.textContent = `พบ ${factories.length} โรงงาน`;
+
+            if (factories.length === 0) {
+                grid.innerHTML = '<p class="text-sm text-slate-400 col-span-2 text-center py-6">ไม่พบข้อมูล NPS ของบริษัทนี้ในไฟล์ ReportNPS.xlsx</p>';
+                return;
+            }
+
+            factories.forEach((f, idx) => {
+                const canvasId = `br-factory-nps-${idx}`;
+                const card = document.createElement('div');
+                card.className = 'bg-slate-50 rounded-xl border border-slate-200 p-4';
+                card.innerHTML = `
+                    <h4 class="text-xs font-bold text-slate-700 mb-2 truncate" title="${f.name}">${f.name}</h4>
+                    <div style="height: 210px;"><canvas id="${canvasId}"></canvas></div>
+                `;
+                grid.appendChild(card);
+
+                const labels = [];
+                const data = [];
+                for (let m = start; m <= end; m++) {
+                    labels.push(monthNamesShortTH[m - 1]);
+                    data.push(f.data[m] !== undefined ? Math.round(f.data[m] * 10) / 10 : null);
+                }
+
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                const chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: 'NPS',
+                            data,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#10b981',
+                            spanGaps: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            datalabels: {
+                                align: 'top',
+                                color: (ctx) => {
+                                    const v = ctx.dataset.data[ctx.dataIndex];
+                                    return (v !== null && v < 75) ? '#ef4444' : '#047857';
+                                },
+                                font: { weight: 'bold', size: 11 },
+                                formatter: (v) => v === null ? '' : `${v}%`
+                            }
+                        },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { size: 9 } } },
+                            y: { beginAtZero: true, max: 100, grid: { color: '#f1f5f9' }, ticks: { font: { size: 9 } } }
+                        }
+                    }
+                });
+                brFactoryNpsChartInstances.push(chart);
+            });
+        }
+
+        // แปลงค่าตัวเลขเป็นสี gradient น้ำเงินอ่อน-เข้ม ตามตำแหน่งเทียบกับ min-max ของแถวนั้น (สำหรับ metric ที่ไม่มีเกณฑ์ตายตัว)
+        // สีและ threshold ต่อไปนี้ดึงมาจากค่าสีพื้นหลัง (static fill) จริงในไฟล์ Quality.xlsx ต้นฉบับ
+        // เพื่อให้ตารางในเว็บแสดงสีตรงกับไฟล์ Excel ที่ผู้ใช้ส่งมาทุกประการ
+
+        function qualityCountColor(v) {
+            if (v === null || v === undefined) return { bg: '#A8A8A8', text: '#334155' };
+            return v < 30
+                ? { bg: '#EF656C', text: '#7f1d1d' }
+                : { bg: '#D0DDE8', text: '#1e3a5f' };
+        }
+
+        function qualityMarginColor(v) {
+            if (v === null || v === undefined) return { bg: '#A8A8A8', text: '#334155' };
+            if (v <= 49.5) return { bg: '#EF656C', text: '#7f1d1d' };
+            if (v <= 69.5) return { bg: '#FAC090', text: '#7c2d12' };
+            if (v <= 90.5) return { bg: '#E9FAFF', text: '#155e75' };
+            return { bg: '#F5F97E', text: '#713f12' };
+        }
+
+        function qualitySdColor(v) {
+            if (v === null || v === undefined) return { bg: '#A8A8A8', text: '#334155' };
+            if (v <= 28.55) return { bg: '#A1F2A1', text: '#14532d' };
+            if (v <= 34.65) return { bg: '#F5F97E', text: '#713f12' };
+            if (v <= 41.75) return { bg: '#E9FAFF', text: '#155e75' };
+            if (v <= 48.85) return { bg: '#FAC090', text: '#7c2d12' };
+            return { bg: '#EF656C', text: '#7f1d1d' };
+        }
+
+        function qualityCpkColor(cpk) {
+            if (cpk === null || cpk === undefined) return { bg: '#A8A8A8', text: '#334155' };
+            if (cpk < 0.545) return { bg: '#EF656C', text: '#7f1d1d' };
+            if (cpk < 0.785) return { bg: '#F5F97E', text: '#713f12' };
+            return { bg: '#A1F2A1', text: '#14532d' };
+        }
+
+        function qualityLevelColor(level) {
+            if (level === 'ต่ำกว่าเกณฑ์') return { bg: '#EF656C', text: '#7f1d1d' };
+            if (level === 'ตามเกณฑ์') return { bg: '#F5F97E', text: '#713f12' };
+            if (level === 'สูงกว่าเกณฑ์') return { bg: '#A1F2A1', text: '#14532d' };
+            return { bg: '#A8A8A8', text: '#334155' };
+        }
+
+        function renderBRQualityTables(qualityRecords, fcplnoToFactoryName) {
+            const grid = document.getElementById('br-quality-grid');
+            const countLabel = document.getElementById('br-quality-count');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            let map = {};
+            qualityRecords.forEach(r => {
+                let key = r.fcplno;
+                if (!map[key]) {
+                    map[key] = {
+                        name: fcplnoToFactoryName[key] || r.factoryName || key,
+                        months: {}
+                    };
+                }
+                map[key].months[r.month] = r;
+            });
+
+            let factories = Object.keys(map)
+                .map(key => ({ key, name: map[key].name, months: map[key].months }))
+                .sort((a, b) => a.name.localeCompare(b.name, 'th'));
+
+            if (countLabel) countLabel.textContent = `พบ ${factories.length} โรงงาน`;
+
+            if (factories.length === 0) {
+                grid.innerHTML = '<p class="text-sm text-slate-400 text-center py-10">ไม่พบข้อมูลคุณภาพของบริษัทนี้ในไฟล์ Quality.xlsx</p>';
+                return;
+            }
+
+            const metricRows = [
+                { key: 'count', label: 'จำนวนก้อนปูน', colorFn: qualityCountColor, format: (v) => (v !== null && v !== undefined) ? Math.round(v).toLocaleString('en-US') : '-' },
+                { key: 'margin', label: 'Margin (ksc)', colorFn: qualityMarginColor, format: (v) => (v !== null && v !== undefined) ? v.toFixed(1) : '-' },
+                { key: 'sd', label: 'SD (ksc)', colorFn: qualitySdColor, format: (v) => (v !== null && v !== undefined) ? v.toFixed(1) : '-' },
+                { key: 'cpk', label: 'Cpk', colorFn: qualityCpkColor, format: (v) => (v !== null && v !== undefined) ? v.toFixed(2) : '-' },
+                { key: 'qualityLevel', label: 'ระดับคุณภาพ', colorFn: qualityLevelColor, format: (v) => v || 'ไม่มีข้อมูล' }
+            ];
+
+            factories.forEach(f => {
+                const monthsPresent = Object.keys(f.months).map(Number).sort((a, b) => a - b);
+
+                const card = document.createElement('div');
+                card.className = 'rounded-xl border border-slate-200 overflow-hidden';
+
+                let theadHtml = `<th class="sticky left-0 bg-slate-100 text-left px-3 py-2 text-[11px] font-bold text-slate-600 whitespace-nowrap z-10">เดือน</th>`;
+                monthsPresent.forEach(m => {
+                    theadHtml += `<th class="px-3 py-2 text-[11px] font-bold text-slate-600 text-center whitespace-nowrap">${monthNamesShortTH[m - 1]}</th>`;
+                });
+
+                let rowsHtml = '';
+                metricRows.forEach(metric => {
+                    rowsHtml += `<tr class="border-t border-slate-100">
+                        <td class="sticky left-0 bg-white px-3 py-2 text-[11px] font-semibold text-slate-600 whitespace-nowrap z-10">${metric.label}</td>`;
+
+                    monthsPresent.forEach(m => {
+                        const rec = f.months[m];
+                        const raw = rec ? rec[metric.key] : null;
+                        const c = metric.colorFn(raw);
+                        const display = metric.format(raw);
+
+                        rowsHtml += `<td class="px-3 py-2 text-center text-[11px] font-semibold whitespace-nowrap" style="background:${c.bg}; color:${c.text};">${display}</td>`;
+                    });
+                    rowsHtml += `</tr>`;
+                });
+
+                card.innerHTML = `
+                    <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200">
+                        <h4 class="text-xs font-bold text-slate-800 truncate" title="${f.name}">
+                            <i class="fa-solid fa-industry text-amber-500 mr-1.5"></i>${f.name}
+                        </h4>
+                    </div>
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="min-w-full border-collapse">
+                            <thead><tr class="bg-slate-100">${theadHtml}</tr></thead>
+                            <tbody>${rowsHtml}</tbody>
+                        </table>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
         function initApp() {
             // โหลดไฟล์ Excel อัตโนมัติจาก GitHub Repository (ชื่อ DashboardSaleAI.xlsx เป็นอันดับแรก)
             loadDefaultExcelFromRepo();
+            loadQualityFromRepo();
+            loadNPSFromRepo();
 
             document.getElementById('excel-file').addEventListener('change', handleFileUpload);
 
@@ -1719,9 +3010,415 @@
                 if (topTenDropdown) topTenDropdown.value = 'ALL';
                 updateDashboard();
             });
+
+            // ----- Business Review filters -----
+            document.getElementById('br-filter-enterprise').addEventListener('change', () => {
+                populateBRCompanyDropdown();
+                updateBusinessReview();
+            });
+            document.getElementById('br-filter-company').addEventListener('change', updateBusinessReview);
+            document.getElementById('br-filter-start-month').addEventListener('change', updateBusinessReview);
+            document.getElementById('br-filter-end-month').addEventListener('change', () => {
+                brEndMonthUserSet = true;
+                updateBusinessReview();
+            });
+
+            document.getElementById('br-btn-reset').addEventListener('click', () => {
+                const entSel = document.getElementById('br-filter-enterprise');
+                const compSel = document.getElementById('br-filter-company');
+                const defaultEnt = (globalData.enterprises || []).find(e => e.includes(BR_DEFAULT_ENTERPRISE_HINT));
+                entSel.value = defaultEnt || 'ALL';
+                populateBRCompanyDropdown();
+                const companyOptions = Array.from(compSel.options).map(o => o.value);
+                compSel.value = companyOptions.includes(BR_DEFAULT_COMPANY) ? BR_DEFAULT_COMPANY : '';
+                document.getElementById('br-filter-start-month').value = '1';
+                brEndMonthUserSet = false;
+                document.getElementById('br-filter-end-month').value = getMaxMonthWithData();
+                updateBusinessReview();
+            });
         }
 
-        window.onload = initApp;
+        // หมายเหตุ: initApp() ไม่ถูกเรียกที่ window.onload อีกต่อไป
+        // แต่จะถูกเรียกจาก showApp() หลัง login สำเร็จ (ดู auth script ด้านล่าง)
+    </script>
+
+    <script>
+    /* ============================================================
+       AUTHENTICATION (client-side login gate)
+       ------------------------------------------------------------
+       ใช้ backend เดียวกับแดชบอร์ดอื่นในองค์กร (Google Sheet ผ่าน
+       Apps Script Web App) เพื่อให้ username/password ชุดเดียวกัน
+       เข้าได้ทุกแดชบอร์ด — เรียกผ่าน JSONP (ไม่ใช้ fetch) เพราะ
+       Apps Script Web App มักมีปัญหา CORS กับ fetch() โดยตรง
+
+       ข้อจำกัดสำคัญ (โปรดอ่าน):
+       ไฟล์นี้เป็น Static HTML ล้วนๆ ไม่มี Backend/Database ของตัวเอง
+       - รหัสผ่านที่ตรวจสอบผ่าน AUTH_API_URL จะถูกส่ง/ตรวจสอบที่ฝั่ง
+         Google Apps Script (ซึ่งเชื่อมกับ Google Sheet จริง)
+       - หากปิด AUTH_API_URL (เว้นว่างไว้) ระบบจะ fallback ไปใช้
+         DEFAULT_USERS ที่ฝังในไฟล์ (ว่างเปล่าโดย default ในไฟล์นี้)
+         หรือไฟล์ USER.xlsx ที่วางไว้โฟลเดอร์เดียวกัน (ถ้ามี)
+       - "เปลี่ยนรหัสผ่าน" ตอน fallback จะเก็บแค่ใน localStorage ของ
+         เบราว์เซอร์เครื่องนั้น ไม่ sync ไปเครื่องอื่น
+       ============================================================ */
+    const DEFAULT_USERS = [];
+    const USER_SOURCE_URL = 'USER.xlsx';
+    const SESSION_KEY = 'saledash_auth_session_v1';
+    const RESET_OVERRIDE_KEY = 'saledash_pw_overrides_v1';
+    const REMEMBER_KEY = 'saledash_remembered_login_v1';
+
+    /* Google Sheet backend เดียวกับแดชบอร์ดอื่น (Plant Visit / CPAC Franchise
+       Performance Dashboard) ทำให้ username/password ชุดเดียวกันใช้ได้ทุกที่
+       เว้นว่าง ('') เพื่อปิดการเชื่อมต่อ แล้วใช้ DEFAULT_USERS/USER.xlsx แทน */
+    const AUTH_API_URL = 'https://script.google.com/macros/s/AKfycbxSOm4Mjmb1iYmLavAioYfSlGzZu2UOdcph6XR5zWdV_Cp5dW8NHysfDfPI1_HGMGmU/exec';
+
+    function jsonpRequest(params) {
+        return new Promise((resolve, reject) => {
+            const cbName = 'saleDashCallback_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
+            const cleanup = () => {
+                clearTimeout(timer);
+                delete window[cbName];
+                if (script.parentNode) script.parentNode.removeChild(script);
+            };
+            const timer = setTimeout(() => { cleanup(); reject(new Error('timeout')); }, 30000);
+            window[cbName] = (data) => { cleanup(); resolve(data); };
+            const qs = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
+            const script = document.createElement('script');
+            script.src = AUTH_API_URL + '?' + qs + '&callback=' + cbName;
+            script.onerror = () => { cleanup(); reject(new Error('script_load_error')); };
+            document.body.appendChild(script);
+        });
+    }
+    async function apiCall(action, payload) {
+        try {
+            return await jsonpRequest({ action, ...payload });
+        } catch (err) {
+            console.warn('First attempt to Auth API failed, retrying once...', err.message);
+            return await jsonpRequest({ action, ...payload });
+        }
+    }
+    async function apiLogin(username, password) {
+        return apiCall('login', { username, password });
+    }
+    async function apiResetPassword(username, oldPassword, newPassword) {
+        return apiCall('resetPassword', { username, oldPassword, newPassword });
+    }
+
+    let AUTH_USERS = DEFAULT_USERS;
+
+    function normalizeUsername(raw) {
+        let u = (raw || '').trim().toLowerCase();
+        u = u.replace(/@scg\.com$/i, '');
+        return u;
+    }
+
+    async function sha256Hex(text) {
+        const enc = new TextEncoder().encode(text);
+        const buf = await crypto.subtle.digest('SHA-256', enc);
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function getPwOverrides() {
+        try { return JSON.parse(localStorage.getItem(RESET_OVERRIDE_KEY) || '{}'); }
+        catch (e) { return {}; }
+    }
+    function savePwOverride(username, hash) {
+        try {
+            const o = getPwOverrides();
+            o[username] = hash;
+            localStorage.setItem(RESET_OVERRIDE_KEY, JSON.stringify(o));
+            return true;
+        } catch (e) { return false; }
+    }
+
+    function findAuthUser(username) {
+        return AUTH_USERS.find(u => u.username === username) || null;
+    }
+
+    async function tryAutoFetchUsers() {
+        if (typeof XLSX === 'undefined') return null;
+        try {
+            const res = await fetch(USER_SOURCE_URL + '?t=' + Date.now(), { cache: 'no-store' });
+            if (!res.ok) return null;
+            const buf = await res.arrayBuffer();
+            const wb = XLSX.read(new Uint8Array(buf), { type: 'array' });
+            const sheetName = wb.SheetNames.includes('Sheet1') ? 'Sheet1' : wb.SheetNames[0];
+            const ws = wb.Sheets[sheetName];
+            const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null });
+            const seen = {};
+            for (let i = 1; i < rows.length; i++) {
+                const r = rows[i];
+                if (!r || !r[1] || !r[2]) continue;
+                const username = String(r[1]).trim().toLowerCase();
+                const password = String(r[2]).trim();
+                const hash = await sha256Hex(password);
+                seen[username] = { name: r[0] ? String(r[0]).trim() : '', username, passwordHash: hash };
+            }
+            const list = Object.values(seen);
+            return list.length ? list : null;
+        } catch (e) {
+            console.warn('Auto-fetch of "' + USER_SOURCE_URL + '" failed (normal if not hosted next to this page):', e.message);
+            return null;
+        }
+    }
+
+    function getSession() {
+        try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); }
+        catch (e) { return null; }
+    }
+    function saveSession(username, name) {
+        try { localStorage.setItem(SESSION_KEY, JSON.stringify({ username, name, at: new Date().toISOString() })); } catch (e) {}
+    }
+    function clearSession() {
+        try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
+    }
+
+    function getRemembered() {
+        try { return JSON.parse(localStorage.getItem(REMEMBER_KEY) || 'null'); }
+        catch (e) { return null; }
+    }
+    function saveRemembered(username, password) {
+        try { localStorage.setItem(REMEMBER_KEY, JSON.stringify({ username, password })); } catch (e) {}
+    }
+    function prefillLoginForm() {
+        const r = getRemembered();
+        const cb = document.getElementById('login-remember-me');
+        if (r && r.username) {
+            document.getElementById('login-username').value = r.username;
+            document.getElementById('login-password').value = r.password || '';
+            if (cb) cb.checked = true;
+        } else {
+            if (cb) cb.checked = false;
+        }
+    }
+    function clearRemembered() {
+        try { localStorage.removeItem(REMEMBER_KEY); } catch (e) {}
+    }
+
+    async function checkPassword(user, inputPassword) {
+        const overrides = getPwOverrides();
+        const hash = await sha256Hex(inputPassword);
+        if (overrides[user.username]) return overrides[user.username] === hash;
+        return user.passwordHash === hash;
+    }
+
+    let currentLoggedInUsername = null;
+    let appBooted = false;
+
+    function showApp(username, name) {
+        currentLoggedInUsername = username;
+        document.getElementById('login-gate').style.display = 'none';
+        document.getElementById('login-user-chip').textContent = '👤 ' + (name || username);
+        if (!appBooted) {
+            appBooted = true;
+            initApp();
+        }
+    }
+
+    function showLoginError(msg) {
+        document.getElementById('login-error').textContent = msg;
+        document.getElementById('login-success').textContent = '';
+    }
+    function showLoginSuccess(msg) {
+        document.getElementById('login-success').textContent = msg;
+        document.getElementById('login-error').textContent = '';
+    }
+    function showResetError(msg) {
+        document.getElementById('reset-error').textContent = msg;
+        document.getElementById('reset-success').textContent = '';
+    }
+    function showResetSuccess(msg) {
+        document.getElementById('reset-success').textContent = msg;
+        document.getElementById('reset-error').textContent = '';
+    }
+    let inAppPasswordChangeMode = false;
+
+    function backToLoginAfterReset(username) {
+        document.getElementById('reset-old-password').value = '';
+        document.getElementById('reset-new-password').value = '';
+        document.getElementById('reset-confirm-password').value = '';
+        if (inAppPasswordChangeMode) {
+            inAppPasswordChangeMode = false;
+            closeLoginGateOverlay();
+            return;
+        }
+        document.getElementById('login-reset-view').classList.add('hidden');
+        document.getElementById('login-form-view').classList.remove('hidden');
+        document.getElementById('login-username').value = username;
+        document.getElementById('login-password').value = '';
+        showLoginSuccess('เปลี่ยนรหัสผ่านสำเร็จ! กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่');
+    }
+
+    document.getElementById('login-submit').addEventListener('click', async () => {
+        showLoginError('');
+        const rawU = document.getElementById('login-username').value;
+        const pw = document.getElementById('login-password').value;
+        const username = normalizeUsername(rawU);
+        const rememberMe = document.getElementById('login-remember-me').checked;
+        if (!username || !pw) { showLoginError('กรุณากรอก Username และ Password'); return; }
+        const btn = document.getElementById('login-submit');
+        btn.disabled = true; btn.textContent = 'กำลังตรวจสอบ...';
+        try {
+            if (AUTH_API_URL) {
+                let result;
+                try {
+                    result = await apiLogin(username, pw);
+                } catch (err) {
+                    console.error('Auth API error', err);
+                    showLoginError('เชื่อมต่อระบบยืนยันตัวตนไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
+                    return;
+                }
+                if (!result.ok) {
+                    showLoginError(result.error === 'user_not_found' ? 'ไม่พบชื่อผู้ใช้นี้ในระบบ' : 'รหัสผ่านไม่ถูกต้อง');
+                    return;
+                }
+                saveSession(result.username || username, result.name);
+                if (rememberMe) saveRemembered(result.username || username, pw); else clearRemembered();
+                showApp(result.username || username, result.name);
+            } else {
+                const user = findAuthUser(username);
+                if (!user) { showLoginError('ไม่พบชื่อผู้ใช้นี้ในระบบ'); return; }
+                const ok = await checkPassword(user, pw);
+                if (!ok) { showLoginError('รหัสผ่านไม่ถูกต้อง'); return; }
+                saveSession(user.username, user.name);
+                if (rememberMe) saveRemembered(user.username, pw); else clearRemembered();
+                showApp(user.username, user.name);
+            }
+        } finally {
+            btn.disabled = false; btn.textContent = 'เข้าสู่ระบบ';
+        }
+    });
+
+    document.getElementById('login-password').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') document.getElementById('login-submit').click();
+    });
+    document.getElementById('login-username').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') document.getElementById('login-password').focus();
+    });
+
+    document.querySelectorAll('.pw-eye-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = document.getElementById(btn.dataset.target);
+            if (!target) return;
+            const showing = target.type === 'text';
+            target.type = showing ? 'password' : 'text';
+            const icon = btn.querySelector('i');
+            if (icon) icon.className = showing ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+        });
+    });
+
+    document.getElementById('show-reset-link').addEventListener('click', () => {
+        document.getElementById('login-form-view').classList.add('hidden');
+        document.getElementById('login-reset-view').classList.remove('hidden');
+        document.getElementById('reset-username').value = normalizeUsername(document.getElementById('login-username').value);
+        showResetError(''); showResetSuccess('');
+    });
+    document.getElementById('show-login-link').addEventListener('click', () => {
+        if (inAppPasswordChangeMode) {
+            inAppPasswordChangeMode = false;
+            closeLoginGateOverlay();
+            return;
+        }
+        document.getElementById('login-reset-view').classList.add('hidden');
+        document.getElementById('login-form-view').classList.remove('hidden');
+        showLoginError('');
+    });
+
+    document.getElementById('reset-submit').addEventListener('click', async () => {
+        showResetError(''); showResetSuccess('');
+        const username = normalizeUsername(document.getElementById('reset-username').value);
+        const oldPw = document.getElementById('reset-old-password').value;
+        const newPw = document.getElementById('reset-new-password').value;
+        const confirmPw = document.getElementById('reset-confirm-password').value;
+        if (!username || !oldPw || !newPw || !confirmPw) { showResetError('กรุณากรอกข้อมูลให้ครบทุกช่อง'); return; }
+        if (newPw !== confirmPw) { showResetError('รหัสผ่านใหม่และการยืนยันไม่ตรงกัน'); return; }
+        if (newPw.length < 4) { showResetError('รหัสผ่านใหม่ควรมีความยาวอย่างน้อย 4 ตัวอักษร'); return; }
+        const btn = document.getElementById('reset-submit');
+        btn.disabled = true; btn.textContent = 'กำลังดำเนินการ...';
+        try {
+            if (AUTH_API_URL) {
+                let result;
+                try {
+                    result = await apiResetPassword(username, oldPw, newPw);
+                } catch (err) {
+                    console.error('Auth API error', err);
+                    showResetError('เชื่อมต่อระบบยืนยันตัวตนไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
+                    return;
+                }
+                if (!result.ok) {
+                    const msg = result.error === 'user_not_found' ? 'ไม่พบชื่อผู้ใช้นี้ในระบบ'
+                        : result.error === 'wrong_old_password' ? 'รหัสผ่านเดิมไม่ถูกต้อง'
+                        : result.error === 'weak_new_password' ? 'รหัสผ่านใหม่สั้นเกินไป'
+                        : 'เปลี่ยนรหัสผ่านไม่สำเร็จ';
+                    showResetError(msg);
+                    return;
+                }
+                showResetSuccess('เปลี่ยนรหัสผ่านสำเร็จ! บันทึกลง Google Sheet เรียบร้อย มีผลกับทุกอุปกรณ์ กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่');
+                if (getRemembered()) saveRemembered(username, newPw);
+                backToLoginAfterReset(username);
+                return;
+            }
+            const user = findAuthUser(username);
+            if (!user) { showResetError('ไม่พบชื่อผู้ใช้นี้ในระบบ'); return; }
+            const ok = await checkPassword(user, oldPw);
+            if (!ok) { showResetError('รหัสผ่านเดิมไม่ถูกต้อง'); return; }
+            const newHash = await sha256Hex(newPw);
+            const saved = savePwOverride(username, newHash);
+            if (saved) {
+                showResetSuccess('เปลี่ยนรหัสผ่านสำเร็จ! (มีผลเฉพาะเบราว์เซอร์นี้) กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่');
+                if (getRemembered()) saveRemembered(username, newPw);
+                backToLoginAfterReset(username);
+            } else {
+                showResetError('บันทึกรหัสผ่านใหม่ไม่สำเร็จ (เบราว์เซอร์อาจปิดการใช้งาน localStorage)');
+            }
+        } finally {
+            btn.disabled = false; btn.textContent = 'เปลี่ยนรหัสผ่าน';
+        }
+    });
+
+    document.getElementById('btn-logout').addEventListener('click', () => {
+        clearSession();
+        location.reload();
+    });
+
+    function closeLoginGateOverlay() {
+        document.getElementById('login-gate').style.display = 'none';
+        document.getElementById('login-gate-close').classList.add('hidden');
+        document.getElementById('login-reset-view').classList.add('hidden');
+        document.getElementById('login-form-view').classList.remove('hidden');
+        showResetError(''); showResetSuccess('');
+    }
+
+    document.getElementById('btn-change-password').addEventListener('click', () => {
+        inAppPasswordChangeMode = true;
+        document.getElementById('login-gate').style.display = 'flex';
+        document.getElementById('login-gate-close').classList.remove('hidden');
+        document.getElementById('login-form-view').classList.add('hidden');
+        document.getElementById('login-reset-view').classList.remove('hidden');
+        document.getElementById('reset-username').value = currentLoggedInUsername || '';
+        document.getElementById('reset-old-password').value = '';
+        document.getElementById('reset-new-password').value = '';
+        document.getElementById('reset-confirm-password').value = '';
+        showResetError(''); showResetSuccess('');
+    });
+
+    document.getElementById('login-gate-close').addEventListener('click', () => {
+        inAppPasswordChangeMode = false;
+        closeLoginGateOverlay();
+    });
+
+    /* ---------------- auth init ---------------- */
+    (async function initAuth() {
+        if (AUTH_API_URL) {
+            const note = document.getElementById('reset-note');
+            if (note) note.innerHTML = '✅ ระบบนี้เชื่อมต่อกับ Google Sheet โดยตรง — การเปลี่ยนรหัสผ่านจะถูกบันทึกจริงและมีผลกับทุกอุปกรณ์ทันที';
+        } else {
+            const fetchedUsers = await tryAutoFetchUsers();
+            if (fetchedUsers) AUTH_USERS = fetchedUsers;
+        }
+        // แสดงหน้า login เสมอ (ไม่ auto-skip แม้เคย login ไว้ก่อนหน้า) และ prefill username/password ล่าสุดถ้าเลือก "จดจำฉัน" ไว้
+        prefillLoginForm();
+    })();
     </script>
 </body>
 </html>
