@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Production Executive Dashboard</title>
+    <title>Business Review & Sale Volume</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js CDN -->
@@ -12,6 +12,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <!-- SheetJS (xlsx) CDN for Excel reading -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- html2canvas + jsPDF สำหรับดาวน์โหลดรายงาน Business Review เป็น PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts (Inter & Prompt) -->
@@ -37,7 +40,7 @@
                     <i class="fa-solid fa-chart-line text-xl"></i>
                 </div>
                 <div>
-                    <div class="text-lg font-bold text-slate-900">Production Executive Dashboard</div>
+                    <div class="text-lg font-bold text-slate-900">Business Review & Sale Volume</div>
                     <div class="text-xs text-slate-500">กรุณาเข้าสู่ระบบเพื่อดูข้อมูล</div>
                 </div>
             </div>
@@ -66,6 +69,7 @@
                 <button class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition mt-1" id="login-submit">เข้าสู่ระบบ</button>
                 <div class="text-center mt-4">
                     <button class="text-xs text-blue-600 underline font-semibold" id="show-reset-link">เปลี่ยนรหัสผ่าน</button>
+                    <p class="text-[10.5px] text-slate-400 mt-2">เฉพาะทีม Franchise Management</p>
                 </div>
             </div>
 
@@ -116,7 +120,7 @@
                     <i class="fa-solid fa-chart-line text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold text-slate-900 leading-tight">Production Executive Dashboard</h1>
+                    <h1 class="text-lg font-bold text-slate-900 leading-tight">Business Review & Sale Volume</h1>
                     <p class="text-xs text-slate-500">หน่วย: ลูกบาศก์เมตร (ลบ.ม.) | รองรับ Multi-Sheet Excel (2026, 2025, PLAN2026, Status)</p>
                 </div>
             </div>
@@ -138,16 +142,16 @@
             </div>
         </div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-11 flex items-center gap-1 border-t border-slate-100">
-            <button id="tab-btn-dashboard" onclick="switchTab('dashboard')" class="h-full px-4 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 transition">
-                <i class="fa-solid fa-industry mr-1.5"></i>แดชบอร์ดการผลิต
-            </button>
-            <button id="tab-btn-business-review" onclick="switchTab('business-review')" class="h-full px-4 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition">
+            <button id="tab-btn-business-review" onclick="switchTab('business-review')" class="h-full px-4 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 transition">
                 <i class="fa-solid fa-chart-pie mr-1.5"></i>Business Review
+            </button>
+            <button id="tab-btn-dashboard" onclick="switchTab('dashboard')" class="h-full px-4 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition">
+                <i class="fa-solid fa-industry mr-1.5"></i>แดชบอร์ดการผลิต
             </button>
         </div>
     </header>
 
-    <div id="view-dashboard">
+    <div id="view-dashboard" class="hidden">
 
     <section class="bg-white border-b border-slate-200 py-3 sticky top-[108px] z-20 shadow-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -408,7 +412,7 @@
     </div>
     <!-- /view-dashboard -->
 
-    <div id="view-business-review" class="hidden">
+    <div id="view-business-review">
         <section class="bg-white border-b border-slate-200 py-3 sticky top-[108px] z-20 shadow-xs">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 items-end">
@@ -475,6 +479,14 @@
             </div>
 
             <div id="br-content" class="hidden space-y-6">
+                <div class="flex justify-end">
+                    <button id="br-btn-download-pdf" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-sm font-semibold px-4 py-2 rounded-xl transition flex items-center gap-2">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        <span>ดาวน์โหลด PDF</span>
+                    </button>
+                </div>
+
+                <div id="br-report-capture-area" class="space-y-6">
                 <!-- 2. ยอดขายภาพรวมบริษัท -->
                 <div class="bg-white rounded-2xl border border-slate-100 card-shadow p-6">
                     <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
@@ -562,6 +574,8 @@
                     <p class="text-[10px] text-slate-400 mb-3">สีอ้างอิงตามเกณฑ์เดียวกับไฟล์ Quality.xlsx ต้นฉบับ</p>
                     <div id="br-quality-grid" class="space-y-5"></div>
                 </div>
+                </div>
+                <!-- /br-report-capture-area -->
             </div>
         </main>
     </div>
@@ -582,7 +596,7 @@
 
     <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-400">
-            Production & Sales Executive Dashboard &bull; Multi-Sheet Excel Parser (2026, 2025, PLAN2026, Status) &bull; Unit: ลบ.ม.
+            Business Review & Sale Volume &bull; Multi-Sheet Excel Parser (2026, 2025, PLAN2026, Status) &bull; Unit: ลบ.ม.
         </div>
     </footer>
 
@@ -2982,6 +2996,78 @@
             });
         }
 
+        async function exportBRToPDF() {
+            const btn = document.getElementById('br-btn-download-pdf');
+            const captureArea = document.getElementById('br-report-capture-area');
+            if (!btn || !captureArea) return;
+
+            if (typeof html2canvas === 'undefined' || !window.jspdf) {
+                showToast('ไม่สามารถสร้าง PDF ได้', 'ไลบรารีสำหรับสร้าง PDF โหลดไม่สำเร็จ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตแล้วลองใหม่', false);
+                return;
+            }
+
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>กำลังสร้าง PDF...</span>';
+
+            const company = document.getElementById('br-filter-company')?.value || '-';
+            const enterprise = document.getElementById('br-filter-enterprise')?.value || 'ทั้งหมด';
+            const startM = parseInt(document.getElementById('br-filter-start-month')?.value || '1', 10);
+            const endM = parseInt(document.getElementById('br-filter-end-month')?.value || '12', 10);
+            const now = new Date();
+
+            // แถบหัวรายงานชั่วคราว แสดงเฉพาะตอนสร้าง PDF เท่านั้น (ลบออกหลังจบ)
+            const pdfHeader = document.createElement('div');
+            pdfHeader.id = 'br-pdf-header-temp';
+            pdfHeader.className = 'bg-white p-6 rounded-2xl border border-slate-100 card-shadow mb-6';
+            pdfHeader.innerHTML = `
+                <h1 class="text-xl font-bold text-slate-900">Business Review & Sale Volume</h1>
+                <p class="text-sm text-slate-600 mt-2"><b>บริษัท:</b> ${company} &nbsp;&bull;&nbsp; <b>กิจการ:</b> ${enterprise}</p>
+                <p class="text-sm text-slate-600 mt-1"><b>ช่วงเวลา:</b> ${monthNames[startM - 1]} - ${monthNames[endM - 1]}</p>
+                <p class="text-xs text-slate-400 mt-2">สร้างรายงานเมื่อ ${now.toLocaleString('th-TH', { dateStyle: 'long', timeStyle: 'short' })}</p>
+            `;
+            captureArea.insertBefore(pdfHeader, captureArea.firstChild);
+
+            try {
+                await new Promise(r => setTimeout(r, 300)); // เผื่อเวลาให้ layout นิ่งก่อน capture
+
+                const canvas = await html2canvas(captureArea, {
+                    backgroundColor: '#f8fafc',
+                    scale: 2,
+                    useCORS: true
+                });
+
+                const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+                const pageW = pdf.internal.pageSize.getWidth();
+                const pageH = pdf.internal.pageSize.getHeight();
+                const imgW = pageW;
+                const imgH = (canvas.height * imgW) / canvas.width;
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+                let heightLeft = imgH;
+                let position = 0;
+                pdf.addImage(imgData, 'JPEG', 0, position, imgW, imgH);
+                heightLeft -= pageH;
+
+                while (heightLeft > 0) {
+                    position -= pageH;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', 0, position, imgW, imgH);
+                    heightLeft -= pageH;
+                }
+
+                const safeCompany = String(company).replace(/[^\w\u0E00-\u0E7F]+/g, '_') || 'report';
+                pdf.save(`BusinessReview_${safeCompany}_${now.toISOString().slice(0, 10)}.pdf`);
+            } catch (err) {
+                console.error('PDF export failed', err);
+                showToast('สร้าง PDF ไม่สำเร็จ', 'กรุณาลองใหม่อีกครั้ง', false);
+            } finally {
+                pdfHeader.remove();
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+            }
+        }
+
         function initApp() {
             // โหลดไฟล์ Excel อัตโนมัติจาก GitHub Repository (ชื่อ DashboardSaleAI.xlsx เป็นอันดับแรก)
             loadDefaultExcelFromRepo();
@@ -3036,6 +3122,9 @@
                 document.getElementById('br-filter-end-month').value = getMaxMonthWithData();
                 updateBusinessReview();
             });
+
+            const pdfBtn = document.getElementById('br-btn-download-pdf');
+            if (pdfBtn) pdfBtn.addEventListener('click', exportBRToPDF);
         }
 
         // หมายเหตุ: initApp() ไม่ถูกเรียกที่ window.onload อีกต่อไป
@@ -3133,6 +3222,14 @@
 
     function findAuthUser(username) {
         return AUTH_USERS.find(u => u.username === username) || null;
+    }
+
+    // อ่านค่าคอลัมน์ "Priority" จากผลลัพธ์ที่ Apps Script ส่งกลับมา (รองรับตัวพิมพ์เล็ก/ใหญ่ของชื่อ key ที่ต่างกัน)
+    // เฉพาะ Priority = "BR" เท่านั้นที่อนุญาตให้เข้าใช้งานแดชบอร์ดนี้ได้ (ทีม Franchise Management)
+    function getResultPriority(result) {
+        if (!result) return null;
+        const key = Object.keys(result).find(k => k.toLowerCase() === 'priority');
+        return key ? String(result[key] || '').trim().toUpperCase() : null;
     }
 
     async function tryAutoFetchUsers() {
@@ -3270,6 +3367,11 @@
                 }
                 if (!result.ok) {
                     showLoginError(result.error === 'user_not_found' ? 'ไม่พบชื่อผู้ใช้นี้ในระบบ' : 'รหัสผ่านไม่ถูกต้อง');
+                    return;
+                }
+                const priority = getResultPriority(result);
+                if (priority !== 'BR') {
+                    showLoginError('บัญชีนี้ไม่มีสิทธิ์เข้าใช้งานระบบนี้ (เฉพาะทีม Franchise Management)');
                     return;
                 }
                 saveSession(result.username || username, result.name);
