@@ -3156,9 +3156,9 @@
     const RESET_OVERRIDE_KEY = 'saledash_pw_overrides_v1';
     const REMEMBER_KEY = 'saledash_remembered_login_v1';
 
-    /* Google Sheet backend เฉพาะของแดชบอร์ดนี้ (ทีม Franchise Management)
+    /* Google Sheet backend (Apps Script Web App) ที่ผูกกับ Sheet รายชื่อผู้ใช้
        เว้นว่าง ('') เพื่อปิดการเชื่อมต่อ แล้วใช้ DEFAULT_USERS/USER.xlsx แทน */
-    const AUTH_API_URL = 'https://script.google.com/macros/s/AKfycbxQvTwMfjukDIRtlZzKakRA3fEks5bmQAYeL4lv3cEM83rif5e8aJIrH0MJ553HV8R5hw/exec';
+    const AUTH_API_URL = 'https://script.google.com/macros/s/AKfycbxSOm4Mjmb1iYmLavAioYfSlGzZu2UOdcph6XR5zWdV_Cp5dW8NHysfDfPI1_HGMGmU/exec';
 
     function jsonpRequest(params) {
         return new Promise((resolve, reject) => {
@@ -3221,6 +3221,18 @@
 
     function findAuthUser(username) {
         return AUTH_USERS.find(u => u.username === username) || null;
+    }
+
+    // อ่านค่าคอลัมน์ D "Piority" จากผลลัพธ์ที่ Apps Script ส่งกลับมา
+    // รองรับทั้ง key ชื่อ "piority" (ตามที่สะกดใน Sheet) และ "priority" (สะกดถูก) เผื่อ Apps Script ใช้ชื่อไหน
+    // อนุญาตให้เข้าใช้งานเฉพาะเมื่อค่าเป็น "yes" เท่านั้น
+    function getResultPriority(result) {
+        if (!result) return null;
+        const key = Object.keys(result).find(k => {
+            const lower = k.toLowerCase();
+            return lower === 'piority' || lower === 'priority';
+        });
+        return key ? String(result[key] || '').trim().toUpperCase() : null;
     }
 
     async function tryAutoFetchUsers() {
@@ -3358,6 +3370,18 @@
                 }
                 if (!result.ok) {
                     showLoginError(result.error === 'user_not_found' ? 'ไม่พบชื่อผู้ใช้นี้ในระบบ' : 'รหัสผ่านไม่ถูกต้อง');
+                    return;
+                }
+                // ตรวจสอบสิทธิ์จากคอลัมน์ D (Piority) ต้องเป็น "yes" เท่านั้นจึงจะเข้าใช้งานได้
+                const priority = getResultPriority(result);
+                if (priority !== 'YES') {
+                    console.log('[Auth] ผลลัพธ์จาก API:', result, '| ค่า Piority ที่อ่านได้:', priority);
+                    if (priority === null) {
+                        // ไม่พบ field เลย = Apps Script ยังไม่ได้ส่งคอลัมน์ D กลับมา (ต้องแก้ที่ Apps Script)
+                        showLoginError(`ระบบยังไม่ได้รับข้อมูลสิทธิ์การใช้งานจาก Google Sheet (ไม่พบคอลัมน์ Piority) — fields ที่ได้รับ: ${Object.keys(result).join(', ')}`);
+                    } else {
+                        showLoginError('บัญชีนี้ไม่มีสิทธิ์เข้าใช้งานระบบนี้ (เฉพาะทีม Franchise Management)');
+                    }
                     return;
                 }
                 saveSession(result.username || username, result.name);
