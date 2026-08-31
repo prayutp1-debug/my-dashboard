@@ -148,6 +148,9 @@
             <button id="tab-btn-dashboard" onclick="switchTab('dashboard')" class="h-full px-4 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition">
                 <i class="fa-solid fa-industry mr-1.5"></i>แดชบอร์ดการผลิต
             </button>
+            <button id="tab-btn-nps" onclick="switchTab('nps')" class="h-full px-4 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition">
+                <i class="fa-solid fa-face-smile mr-1.5"></i>NPS
+            </button>
         </div>
     </header>
 
@@ -581,6 +584,191 @@
     </div>
     <!-- /view-business-review -->
 
+    <!-- ============ NPS TAB ============ -->
+    <div id="view-nps" class="hidden">
+        <section class="bg-white border-b border-slate-200 py-3 sticky top-[108px] z-20 shadow-xs">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 items-end">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">กิจการ (Enterprise)</label>
+                        <select id="nps-filter-enterprise" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2">
+                            <option value="ALL">ทั้งหมด (All Enterprises)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">ประเภท (Type)</label>
+                        <select id="nps-filter-type" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2">
+                            <option value="ALL">ทั้งหมด (All Types)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">เดือนเริ่มต้น (Start Month)</label>
+                        <select id="nps-filter-start-month" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2">
+                            <option value="1">มกราคม (Jan)</option><option value="2">กุมภาพันธ์ (Feb)</option>
+                            <option value="3">มีนาคม (Mar)</option><option value="4">เมษายน (Apr)</option>
+                            <option value="5">พฤษภาคม (May)</option><option value="6">มิถุนายน (Jun)</option>
+                            <option value="7">กรกฎาคม (Jul)</option><option value="8">สิงหาคม (Aug)</option>
+                            <option value="9">กันยายน (Sep)</option><option value="10">ตุลาคม (Oct)</option>
+                            <option value="11">พฤศจิกายน (Nov)</option><option value="12">ธันวาคม (Dec)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">เดือนสิ้นสุด (End Month)</label>
+                        <select id="nps-filter-end-month" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2">
+                            <option value="1">มกราคม (Jan)</option><option value="2">กุมภาพันธ์ (Feb)</option>
+                            <option value="3">มีนาคม (Mar)</option><option value="4">เมษายน (Apr)</option>
+                            <option value="5">พฤษภาคม (May)</option><option value="6">มิถุนายน (Jun)</option>
+                            <option value="7">กรกฎาคม (Jul)</option><option value="8">สิงหาคม (Aug)</option>
+                            <option value="9">กันยายน (Sep)</option><option value="10">ตุลาคม (Oct)</option>
+                            <option value="11">พฤศจิกายน (Nov)</option><option value="12" selected>ธันวาคม (Dec)</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button id="nps-btn-reset" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm py-2 px-4 rounded-lg transition flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-rotate-right"></i><span>รีเซ็ตตัวกรอง</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow space-y-6">
+            <div id="nps-empty-hint" class="hidden bg-white rounded-2xl border border-slate-100 card-shadow p-14 text-center text-slate-400">
+                <i class="fa-solid fa-face-meh text-4xl mb-3"></i>
+                <p class="text-sm">ไม่พบข้อมูล NPS — กรุณาตรวจสอบว่ามีไฟล์ ReportNPS.xlsx ใน Repository</p>
+            </div>
+
+            <div id="nps-content" class="space-y-6">
+                <!-- KPI cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow relative overflow-hidden">
+                        <div class="absolute right-3 top-3 text-slate-100 text-4xl pointer-events-none"><i class="fa-solid fa-industry"></i></div>
+                        <p class="text-xs font-semibold text-slate-400 tracking-wider uppercase">โรงงานทั้งหมด</p>
+                        <h3 id="nps-kpi-total" class="text-2xl font-bold text-slate-900 mt-2">0</h3>
+                        <p class="text-xs text-slate-500 mt-1">ที่มีข้อมูล NPS ในช่วงที่เลือก</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow relative overflow-hidden">
+                        <div class="absolute right-3 top-3 text-emerald-100 text-4xl pointer-events-none"><i class="fa-solid fa-face-smile"></i></div>
+                        <p class="text-xs font-semibold text-slate-400 tracking-wider uppercase">NPS &ge; 75%</p>
+                        <div class="flex items-baseline gap-2 mt-2">
+                            <h3 id="nps-kpi-pass" class="text-2xl font-bold text-emerald-600">0</h3>
+                            <span id="nps-kpi-pass-pct" class="text-sm font-semibold text-emerald-600">(0%)</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">ผ่านเกณฑ์</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow relative overflow-hidden">
+                        <div class="absolute right-3 top-3 text-rose-100 text-4xl pointer-events-none"><i class="fa-solid fa-face-frown"></i></div>
+                        <p class="text-xs font-semibold text-slate-400 tracking-wider uppercase">NPS &lt; 75%</p>
+                        <div class="flex items-baseline gap-2 mt-2">
+                            <h3 id="nps-kpi-fail" class="text-2xl font-bold text-rose-600">0</h3>
+                            <span id="nps-kpi-fail-pct" class="text-sm font-semibold text-rose-600">(0%)</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">ต่ำกว่าเกณฑ์ ต้องติดตาม</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow relative overflow-hidden">
+                        <div class="absolute right-3 top-3 text-blue-100 text-4xl pointer-events-none"><i class="fa-solid fa-chart-simple"></i></div>
+                        <p class="text-xs font-semibold text-slate-400 tracking-wider uppercase">NPS รวม</p>
+                        <h3 id="nps-kpi-avg" class="text-2xl font-bold text-slate-900 mt-2">0.0%</h3>
+                        <p class="text-xs text-slate-500 mt-1">เฉลี่ยทุกโรงงานในช่วงที่เลือก</p>
+                    </div>
+                </div>
+
+                <!-- แถวที่ 1: แนวโน้มรายเดือน + รายกิจการ -->
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-2xl border border-slate-100 card-shadow p-6">
+                        <div class="flex items-center justify-between flex-wrap gap-3 mb-1">
+                            <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                                <i class="fa-solid fa-chart-line text-blue-600"></i>
+                                <span>1. แนวโน้ม NPS รวม รายเดือน</span>
+                            </h2>
+                            <button onclick="expandBRChart('nps-trend')" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 transition" title="ขยายกราฟ">
+                                <i class="fa-solid fa-expand text-xs"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-4">เส้นประสีแดง = เกณฑ์ 75% &bull; ตัวเลขสีแดง = ต่ำกว่าเกณฑ์</p>
+                        <div style="height: 320px;"><canvas id="npsTrendChart"></canvas></div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-100 card-shadow p-6">
+                        <div class="flex items-center justify-between flex-wrap gap-3 mb-1">
+                            <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                                <i class="fa-solid fa-sitemap text-blue-600"></i>
+                                <span>3. NPS รวม รายกิจการ</span>
+                            </h2>
+                            <button onclick="expandBRChart('nps-enterprise')" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 transition" title="ขยายกราฟ">
+                                <i class="fa-solid fa-expand text-xs"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-4">แท่งสีเขียว = ผ่านเกณฑ์ 75% &bull; สีแดง = ต่ำกว่าเกณฑ์</p>
+                        <div style="height: 320px;"><canvas id="npsEnterpriseChart"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- แถวที่ 2: จำนวนโรงงานผ่าน/ไม่ผ่าน รายเดือน + รายกิจการ -->
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-2xl border border-slate-100 card-shadow p-6">
+                        <div class="flex items-center justify-between flex-wrap gap-3 mb-1">
+                            <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                                <i class="fa-solid fa-layer-group text-blue-600"></i>
+                                <span>2. จำนวนโรงงาน ผ่าน/ไม่ผ่านเกณฑ์ รายเดือน</span>
+                            </h2>
+                            <button onclick="expandBRChart('nps-passfail')" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 transition" title="ขยายกราฟ">
+                                <i class="fa-solid fa-expand text-xs"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-4">นับจำนวนโรงงานที่ NPS &ge; 75% เทียบกับที่ต่ำกว่าเกณฑ์ ในแต่ละเดือน</p>
+                        <div style="height: 320px;"><canvas id="npsPassFailChart"></canvas></div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-100 card-shadow p-6">
+                        <div class="flex items-center justify-between flex-wrap gap-3 mb-1">
+                            <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                                <i class="fa-solid fa-chart-column text-blue-600"></i>
+                                <span>4. จำนวนโรงงาน ผ่าน/ไม่ผ่านเกณฑ์ รายกิจการ</span>
+                            </h2>
+                            <button onclick="expandBRChart('nps-ent-passfail')" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 transition" title="ขยายกราฟ">
+                                <i class="fa-solid fa-expand text-xs"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-4">อิงจาก NPS รวมของแต่ละโรงงานตลอดช่วงที่เลือก</p>
+                        <div style="height: 320px;"><canvas id="npsEntPassFailChart"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- 5. โรงงานที่ไม่มีผล NPS -->
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow p-6">
+                    <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2 mb-1">
+                        <i class="fa-solid fa-circle-question text-slate-500"></i>
+                        <span>5. โรงงานที่ไม่มีผล NPS</span>
+                    </h2>
+                    <p id="nps-nodata-count" class="text-xs text-slate-400 mb-4">พบ 0 โรงงาน</p>
+                    <div id="nps-nodata-table"></div>
+                </div>
+
+                <!-- 6. โรงงานที่ NPS ต่ำกว่าเกณฑ์ -->
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow p-6">
+                    <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2 mb-1">
+                        <i class="fa-solid fa-triangle-exclamation text-rose-600"></i>
+                        <span>6. โรงงานที่ NPS ต่ำกว่า 75% (เปรียบเทียบรายเดือน)</span>
+                    </h2>
+                    <p id="nps-below-count" class="text-xs text-slate-400 mb-4">พบ 0 โรงงาน</p>
+                    <div id="nps-below-monthly"></div>
+                </div>
+
+                <!-- 7. โรงงานที่ NPS ผ่านเกณฑ์ -->
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow p-6">
+                    <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2 mb-1">
+                        <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                        <span>7. โรงงานที่ NPS ตั้งแต่ 75% ขึ้นไป (เปรียบเทียบรายเดือน)</span>
+                    </h2>
+                    <p id="nps-above-count" class="text-xs text-slate-400 mb-4">พบ 0 โรงงาน</p>
+                    <div id="nps-above-monthly"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- /view-nps -->
+
     <!-- Chart Expand Modal -->
     <div id="chart-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-5xl relative shadow-2xl">
@@ -639,6 +827,16 @@
         let brNpsOverviewChartInstance = null;
         let brFactorySalesChartInstances = [];
         let brFactoryNpsChartInstances = [];
+
+        // NPS tab chart instances
+        let npsTrendChartInstance = null;
+        let npsPassFailChartInstance = null;
+        let npsEnterpriseChartInstance = null;
+        let npsEntPassFailChartInstance = null;
+
+        const NPS_THRESHOLD = 75;
+        // รายชื่อโรงงานทั้งหมดจาก sheet CAL (รวมโรงงานที่ยังไม่มีผู้ตอบเลย) — ใช้ทำตาราง "ไม่มีผล NPS"
+        let npsMasterFactories = null;
 
         // Chart expand-to-modal registry: key -> { title, type, labels, datasets, options }
         let brChartRegistry = {};
@@ -1029,7 +1227,119 @@
         }
 
         // ===== Business Review: ReportNPS.xlsx parser (ใช้ sheet "NPS") =====
+        // ===== Business Review: ReportNPS.xlsx — sheet "CAL" =====
+        // sheet นี้มีจำนวนคนจริง (Promoter / Passive / Detractor) รายเดือน
+        // ทำให้คำนวณ NPS รวมได้ถูกต้องตามสูตร (Promoter - Detractor) / รวม
+        // แทนการเฉลี่ยค่า % ของแต่ละโรงงาน (ซึ่งให้น้ำหนักโรงงานเล็ก/ใหญ่เท่ากันโดยไม่ถูกต้อง)
+        function parseNPSCalSheet(workbook) {
+            const sheet = workbook.Sheets['CAL'];
+            if (!sheet) return null;
+            const matrix = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null });
+            if (!matrix || matrix.length < 3) return null;
+
+            // แถวแรกเป็นหัวข้อกลุ่ม (Promoter / Passive / Detractor) แถวถัดมาเป็นหัวคอลัมน์จริง
+            const groupRow = (matrix[0] || []).map(h => String(h || '').trim().toLowerCase());
+
+            let headerRowIdx = -1;
+            for (let r = 0; r < Math.min(5, matrix.length); r++) {
+                if (matrix[r] && matrix[r].some(c => String(c || '').trim() === 'กิจการ')) { headerRowIdx = r; break; }
+            }
+            if (headerRowIdx === -1) return null;
+
+            const header = (matrix[headerRowIdx] || []).map(h => String(h || '').trim());
+            const headerLower = header.map(h => h.toLowerCase().replace(/\s+/g, ''));
+
+            const entIdx = headerLower.findIndex(h => h.includes('กิจการ'));
+            const compIdx = headerLower.findIndex(h => h.includes('บจก') || h.includes('หจก'));
+            const plantIdx = headerLower.findIndex(h => h.includes('โรงงาน'));
+            const typeIdx = headerLower.findIndex(h => h === 'type');
+            // คอลัมน์ "สาเหตุ" (ถ้ามี) ใช้อธิบายว่าทำไมโรงงานนั้นถึงไม่มีผล NPS
+            const reasonIdx = headerLower.findIndex(h => h.includes('สาเหตุ'));
+            // คอลัมน์รหัสโรงงาน (FCPLNO) อยู่ติดกันทางซ้ายของคอลัมน์ชื่อโรงงานเสมอ
+            const fcplnoIdx = plantIdx > 0 ? plantIdx - 1 : -1;
+            if (plantIdx === -1 || fcplnoIdx === -1) return null;
+
+            let pStart = -1, passStart = -1, dStart = -1;
+            groupRow.forEach((v, i) => {
+                if (pStart === -1 && v.includes('promoter')) pStart = i;
+                if (passStart === -1 && v.includes('passive')) passStart = i;
+                if (dStart === -1 && v.includes('detractor')) dStart = i;
+            });
+            if (pStart === -1 || passStart === -1 || dStart === -1) return null;
+
+            const monthsInBlock = (start) => {
+                const out = {};
+                for (let i = start; i < start + 12 && i < header.length; i++) {
+                    const m = parseMonthValue(header[i]);
+                    if (m) out[m] = i;
+                }
+                return out;
+            };
+            const pCols = monthsInBlock(pStart);
+            const passCols = monthsInBlock(passStart);
+            const dCols = monthsInBlock(dStart);
+            if (Object.keys(pCols).length === 0) return null;
+
+            const num = (v) => {
+                const n = parseFloat(v);
+                return isNaN(n) ? 0 : n;
+            };
+
+            const records = [];
+            const master = [];
+            for (let r = headerRowIdx + 1; r < matrix.length; r++) {
+                const row = matrix[r];
+                if (!row) continue;
+                const fcplno = String(row[fcplnoIdx] || '').trim();
+                if (!fcplno) continue;
+
+                const ent = entIdx !== -1 ? String(row[entIdx] || '').trim() : '';
+                const comp = compIdx !== -1 ? cleanCompanyName(String(row[compIdx] || '').trim()) : '';
+                const plant = String(row[plantIdx] || '').trim();
+                const type = typeIdx !== -1 ? String(row[typeIdx] || '').trim() : '';
+
+                // เก็บรายชื่อโรงงานทั้งหมดไว้ (รวมโรงงานที่ยังไม่มีผู้ตอบเลย) เพื่อทำตาราง "ไม่มีผล NPS"
+                const reason = reasonIdx !== -1 ? String(row[reasonIdx] || '').trim() : '';
+                master.push({ enterprise: ent, company: comp, fcplno: fcplno, factoryName: plant, type: type, reason: reason });
+
+                Object.keys(pCols).forEach(mStr => {
+                    const m = parseInt(mStr, 10);
+                    const promoter = num(row[pCols[m]]);
+                    const passive = passCols[m] !== undefined ? num(row[passCols[m]]) : 0;
+                    const detractor = dCols[m] !== undefined ? num(row[dCols[m]]) : 0;
+                    const total = promoter + passive + detractor;
+                    // เดือนที่ไม่มีผู้ตอบแบบสอบถามเลย = ไม่มีข้อมูล (ไม่ใช่ NPS 0%)
+                    if (total <= 0) return;
+
+                    records.push({
+                        enterprise: ent,
+                        company: comp,
+                        fcplno: fcplno,
+                        factoryName: plant,
+                        type: type,
+                        month: m,
+                        nps: ((promoter - detractor) / total) * 100,
+                        promoter: promoter,
+                        passive: passive,
+                        detractor: detractor
+                    });
+                });
+            }
+            if (records.length === 0) return null;
+            return { records: records, master: master };
+        }
+
         function parseNPSWorkbook(workbook) {
+            // ใช้ sheet "CAL" ก่อนถ้ามี เพราะมีจำนวน Promoter/Passive/Detractor จริง
+            // ทำให้คำนวณ NPS รวมได้ถูกต้องตามสูตร (Promoter - Detractor) / รวม
+            const cal = parseNPSCalSheet(workbook);
+            if (cal) {
+                console.log(`ใช้ข้อมูลจาก sheet "CAL" (${cal.records.length} แถว, ${cal.master.length} โรงงาน) — คำนวณ NPS แบบถ่วงน้ำหนักตามจำนวนผู้ตอบ`);
+                npsMasterFactories = cal.master;
+                return cal.records;
+            }
+            npsMasterFactories = null;
+
             const sheet = workbook.Sheets['NPS'] || workbook.Sheets[workbook.SheetNames[0]];
             if (!sheet) return [];
             const matrix = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null });
@@ -1042,6 +1352,7 @@
             let compIdx = headerLower.findIndex(h => h.includes('บจก') || h.includes('หจก') || h.includes('company'));
             let fcplnoIdx = headerLower.findIndex(h => h.includes('fcplno'));
             let plantIdx = headerLower.findIndex(h => h.includes('โรงงาน') || h.includes('ชื่อโรงงาน'));
+            let typeIdx2 = headerLower.findIndex(h => h === 'type');
 
             if (fcplnoIdx === -1) return [];
 
@@ -1067,7 +1378,7 @@
                     if (val === null || val === undefined || val === '') return;
                     let num = parseFloat(val);
                     if (isNaN(num)) return;
-                    records.push({ enterprise: ent, company: comp, fcplno: fcplno, factoryName: plant, month: mc.month, nps: num });
+                    records.push({ enterprise: ent, company: comp, fcplno: fcplno, factoryName: plant, type: typeIdx2 !== -1 ? String(row[typeIdx2] || '').trim() : '', month: mc.month, nps: num });
                 });
             }
             return records;
@@ -1244,6 +1555,10 @@
                     globalData.nps = parseNPSWorkbook(workbook);
                     console.log(`โหลด ${filename} สำเร็จ (${globalData.nps.length} แถว)`);
                     updateBusinessReview();
+                    populateNpsEnterpriseDropdown();
+                    populateNpsTypeDropdown();
+                    setNpsDefaultEndMonth();
+                    updateNpsTab();
                     return;
                 } catch (err) {
                     console.log(`โหลดไฟล์ ${filename} ไม่สำเร็จ`, err);
@@ -2373,32 +2688,34 @@
 
         const monthNamesShortTH = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 
-        function switchTab(tab) {
-            const dashBtn = document.getElementById('tab-btn-dashboard');
-            const brBtn = document.getElementById('tab-btn-business-review');
-            const dashView = document.getElementById('view-dashboard');
-            const brView = document.getElementById('view-business-review');
-            if (!dashBtn || !brBtn || !dashView || !brView) return;
+        const TAB_CONFIG = [
+            { key: 'business-review', btn: 'tab-btn-business-review', view: 'view-business-review', onShow: () => updateBusinessReview() },
+            { key: 'dashboard', btn: 'tab-btn-dashboard', view: 'view-dashboard', onShow: null },
+            { key: 'nps', btn: 'tab-btn-nps', view: 'view-nps', onShow: () => updateNpsTab() }
+        ];
 
+        function switchTab(tab) {
             const activeClasses = ['border-blue-600', 'text-blue-600'];
             const inactiveClasses = ['border-transparent', 'text-slate-500'];
 
-            if (tab === 'business-review') {
-                dashView.classList.add('hidden');
-                brView.classList.remove('hidden');
-                dashBtn.classList.remove(...activeClasses);
-                dashBtn.classList.add(...inactiveClasses);
-                brBtn.classList.remove(...inactiveClasses);
-                brBtn.classList.add(...activeClasses);
-                updateBusinessReview();
-            } else {
-                brView.classList.add('hidden');
-                dashView.classList.remove('hidden');
-                brBtn.classList.remove(...activeClasses);
-                brBtn.classList.add(...inactiveClasses);
-                dashBtn.classList.remove(...inactiveClasses);
-                dashBtn.classList.add(...activeClasses);
-            }
+            TAB_CONFIG.forEach(cfg => {
+                const btn = document.getElementById(cfg.btn);
+                const view = document.getElementById(cfg.view);
+                if (!btn || !view) return;
+
+                if (cfg.key === tab) {
+                    view.classList.remove('hidden');
+                    btn.classList.remove(...inactiveClasses);
+                    btn.classList.add(...activeClasses);
+                } else {
+                    view.classList.add('hidden');
+                    btn.classList.remove(...activeClasses);
+                    btn.classList.add(...inactiveClasses);
+                }
+            });
+
+            const active = TAB_CONFIG.find(c => c.key === tab);
+            if (active && active.onShow) active.onShow();
         }
 
         function populateBREnterpriseDropdown() {
@@ -3068,6 +3385,599 @@
             }
         }
 
+        // ============================================================
+        // ========================  NPS TAB  =========================
+        // ============================================================
+
+        let npsEndMonthUserSet = false;
+
+        // ตั้งเดือนสิ้นสุดเป็นเดือนล่าสุดที่มีข้อมูล NPS จริง (ไม่ทับถ้าผู้ใช้เลือกเองแล้ว)
+        function setNpsDefaultEndMonth() {
+            if (npsEndMonthUserSet) return;
+            const sel = document.getElementById('nps-filter-end-month');
+            if (!sel) return;
+            const months = (globalData.nps || []).map(n => n.month).filter(m => m >= 1 && m <= 12);
+            if (months.length === 0) return;
+            sel.value = String(Math.max(...months));
+        }
+
+        function populateNpsEnterpriseDropdown() {
+            const sel = document.getElementById('nps-filter-enterprise');
+            if (!sel) return;
+            const current = sel.value;
+            const ents = Array.from(new Set((globalData.nps || []).map(n => n.enterprise).filter(Boolean))).sort();
+            sel.innerHTML = '<option value="ALL">ทั้งหมด (All Enterprises)</option>';
+            ents.forEach(e => {
+                const opt = document.createElement('option');
+                opt.value = e;
+                opt.textContent = e;
+                sel.appendChild(opt);
+            });
+            if (current && Array.from(sel.options).some(o => o.value === current)) sel.value = current;
+        }
+
+        function populateNpsTypeDropdown() {
+            const sel = document.getElementById('nps-filter-type');
+            if (!sel) return;
+            const current = sel.value;
+            const types = Array.from(new Set((globalData.nps || []).map(n => n.type).filter(Boolean))).sort();
+            sel.innerHTML = '<option value="ALL">ทั้งหมด (All Types)</option>';
+            types.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.textContent = t;
+                sel.appendChild(opt);
+            });
+            if (current && Array.from(sel.options).some(o => o.value === current)) sel.value = current;
+        }
+
+        function getNpsMonthRange() {
+            let s = parseInt(document.getElementById('nps-filter-start-month')?.value || '1', 10);
+            let e = parseInt(document.getElementById('nps-filter-end-month')?.value || '12', 10);
+            if (s > e) { const t = s; s = e; e = t; }
+            return { start: s, end: e };
+        }
+
+        // คำนวณ NPS รวมของกลุ่ม record ตามสูตร (Promoter - Detractor) / รวม * 100
+        // ถ้าไฟล์ไม่มีจำนวนคน (sheet CAL) จะ fallback ไปเฉลี่ยค่า % แบบเดิม
+        function aggregateNps(records) {
+            let p = 0, d = 0, total = 0, hasCounts = false;
+            let sum = 0, n = 0;
+            records.forEach(r => {
+                if (typeof r.promoter === 'number') {
+                    hasCounts = true;
+                    p += r.promoter;
+                    d += r.detractor;
+                    total += r.promoter + r.passive + r.detractor;
+                }
+                sum += r.nps;
+                n += 1;
+            });
+            if (hasCounts) return total > 0 ? ((p - d) / total) * 100 : null;
+            return n > 0 ? sum / n : null;
+        }
+
+        // สรุปข้อมูล NPS ต่อโรงงานตลอดช่วงที่เลือก — ใช้ร่วมกันหลายกราฟ/ตาราง
+        function buildNpsFactorySummary(records) {
+            const map = {};
+            records.forEach(r => {
+                const key = r.fcplno;
+                if (!map[key]) {
+                    map[key] = {
+                        fcplno: key,
+                        factoryName: r.factoryName || key,
+                        company: r.company || '-',
+                        enterprise: r.enterprise || '-',
+                        type: r.type || '-',
+                        months: {},
+                        recs: [], count: 0, belowMonths: 0
+                    };
+                }
+                map[key].months[r.month] = r;
+                map[key].recs.push(r);
+                map[key].count += 1;
+                if (r.nps < NPS_THRESHOLD) map[key].belowMonths += 1;
+            });
+            return Object.values(map).map(f => {
+                const agg = aggregateNps(f.recs);
+                return { ...f, avg: agg === null ? 0 : agg };
+            });
+        }
+
+        function updateNpsTab() {
+            const emptyHint = document.getElementById('nps-empty-hint');
+            const content = document.getElementById('nps-content');
+            if (!emptyHint || !content) return;
+
+            const allNps = globalData.nps || [];
+            if (allNps.length === 0) {
+                emptyHint.classList.remove('hidden');
+                content.classList.add('hidden');
+                return;
+            }
+            emptyHint.classList.add('hidden');
+            content.classList.remove('hidden');
+
+            const { start, end } = getNpsMonthRange();
+            const selectedEnt = document.getElementById('nps-filter-enterprise')?.value || 'ALL';
+            const selectedType = document.getElementById('nps-filter-type')?.value || 'ALL';
+
+            const filtered = allNps.filter(n =>
+                n.month >= start && n.month <= end &&
+                (selectedEnt === 'ALL' || n.enterprise === selectedEnt) &&
+                (selectedType === 'ALL' || (n.type || '') === selectedType)
+            );
+
+            const factories = buildNpsFactorySummary(filtered);
+
+            // แสดงเฉพาะช่วงเดือนที่มีข้อมูลจริง (ตัดเดือนท้ายๆ ที่ยังไม่มีผลสำรวจออก)
+            const monthsWithData = filtered.map(n => n.month);
+            const effStart = monthsWithData.length ? Math.min(...monthsWithData) : start;
+            const effEnd = monthsWithData.length ? Math.max(...monthsWithData) : end;
+
+            renderNpsKpis(factories, filtered);
+            renderNpsTrendChart(filtered, effStart, effEnd);
+            renderNpsPassFailChart(filtered, effStart, effEnd);
+            renderNpsEnterpriseChart(filtered);
+            renderNpsEntPassFailChart(factories);
+
+            // รายชื่อโรงงานทั้งหมด (กรองด้วยเงื่อนไขเดียวกับกราฟ) ไว้หาโรงงานที่ไม่มีผล NPS
+            const filteredMaster = (npsMasterFactories || []).filter(f =>
+                (selectedEnt === 'ALL' || f.enterprise === selectedEnt) &&
+                (selectedType === 'ALL' || (f.type || '') === selectedType)
+            );
+            renderNpsFactoryTables(factories, filteredMaster, effStart, effEnd);
+        }
+
+        function renderNpsKpis(factories, records) {
+            const total = factories.length;
+            const pass = factories.filter(f => f.avg >= NPS_THRESHOLD).length;
+            const fail = total - pass;
+            const aggAll = aggregateNps(records);
+            const avgAll = aggAll === null ? 0 : aggAll;
+
+            const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+            setText('nps-kpi-total', total.toLocaleString('en-US'));
+            setText('nps-kpi-pass', pass.toLocaleString('en-US'));
+            setText('nps-kpi-fail', fail.toLocaleString('en-US'));
+            setText('nps-kpi-pass-pct', total > 0 ? `(${((pass / total) * 100).toFixed(1)}%)` : '(0%)');
+            setText('nps-kpi-fail-pct', total > 0 ? `(${((fail / total) * 100).toFixed(1)}%)` : '(0%)');
+            setText('nps-kpi-avg', `${avgAll.toFixed(1)}%`);
+        }
+
+        // เส้นประแสดงเกณฑ์ 75%
+        const npsThresholdLinePlugin = {
+            id: 'npsThresholdLinePlugin',
+            afterDraw(chart) {
+                const yScale = chart.scales.y;
+                if (!yScale) return;
+                const y = yScale.getPixelForValue(NPS_THRESHOLD);
+                if (isNaN(y) || y < chart.chartArea.top || y > chart.chartArea.bottom) return;
+                const { ctx, chartArea } = chart;
+                ctx.save();
+                ctx.beginPath();
+                ctx.setLineDash([6, 4]);
+                ctx.strokeStyle = '#ef4444';
+                ctx.lineWidth = 1.5;
+                ctx.moveTo(chartArea.left, y);
+                ctx.lineTo(chartArea.right, y);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = '#ef4444';
+                ctx.font = 'bold 10px Prompt, sans-serif';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText('เกณฑ์ 75%', chartArea.right - 4, y - 2);
+                ctx.restore();
+            }
+        };
+
+        function renderNpsTrendChart(records, start, end) {
+            const canvas = document.getElementById('npsTrendChart');
+            if (!canvas) return;
+            if (npsTrendChartInstance) npsTrendChartInstance.destroy();
+
+            const byMonth = {};
+            for (let m = start; m <= end; m++) byMonth[m] = [];
+            records.forEach(r => {
+                if (byMonth[r.month]) byMonth[r.month].push(r);
+            });
+
+            const labels = [], data = [];
+            for (let m = start; m <= end; m++) {
+                labels.push(monthNames[m - 1]);
+                const agg = aggregateNps(byMonth[m]);
+                data.push(agg === null ? null : Math.round(agg * 10) / 10);
+            }
+
+            const datasets = [{
+                label: 'NPS รวม (%)',
+                data,
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 5,
+                pointBackgroundColor: (c) => {
+                    const v = c.dataset.data[c.dataIndex];
+                    return (v !== null && v < NPS_THRESHOLD) ? '#ef4444' : '#2563eb';
+                },
+                spanGaps: true
+            }];
+            const options = {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        align: 'top',
+                        color: (c) => {
+                            const v = c.dataset.data[c.dataIndex];
+                            return (v !== null && v < NPS_THRESHOLD) ? '#ef4444' : '#1d4ed8';
+                        },
+                        font: { weight: 'bold', size: 11 },
+                        formatter: (v) => v === null ? '' : `${v}%`
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: true, max: 100, grid: { color: '#f1f5f9' } }
+                }
+            };
+
+            npsTrendChartInstance = new Chart(canvas.getContext('2d'), {
+                type: 'line', data: { labels, datasets },
+                plugins: [npsThresholdLinePlugin], options
+            });
+            brChartRegistry['nps-trend'] = { title: 'แนวโน้ม NPS รวม รายเดือน', type: 'line', labels, datasets, options, plugins: [npsThresholdLinePlugin] };
+        }
+
+        function renderNpsPassFailChart(records, start, end) {
+            const canvas = document.getElementById('npsPassFailChart');
+            if (!canvas) return;
+            if (npsPassFailChartInstance) npsPassFailChartInstance.destroy();
+
+            const pass = {}, fail = {};
+            for (let m = start; m <= end; m++) { pass[m] = 0; fail[m] = 0; }
+            records.forEach(r => {
+                if (pass[r.month] === undefined) return;
+                if (r.nps >= NPS_THRESHOLD) pass[r.month] += 1; else fail[r.month] += 1;
+            });
+
+            const labels = [], dPass = [], dFail = [];
+            for (let m = start; m <= end; m++) {
+                labels.push(monthNames[m - 1]);
+                dPass.push(pass[m]);
+                dFail.push(fail[m]);
+            }
+
+            const datasets = [
+                { label: 'NPS ≥ 75%', data: dPass, backgroundColor: '#10b981', borderRadius: 4 },
+                { label: 'NPS < 75%', data: dFail, backgroundColor: '#ef4444', borderRadius: 4 }
+            ];
+            const options = {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    datalabels: {
+                        anchor: 'center', align: 'center',
+                        color: '#ffffff', font: { weight: 'bold', size: 11 },
+                        formatter: (v) => v > 0 ? v : ''
+                    }
+                },
+                scales: {
+                    x: { stacked: true, grid: { display: false } },
+                    y: { stacked: true, beginAtZero: true, grid: { color: '#f1f5f9' }, title: { display: true, text: 'จำนวนโรงงาน' } }
+                }
+            };
+
+            npsPassFailChartInstance = new Chart(canvas.getContext('2d'), { type: 'bar', data: { labels, datasets }, options });
+            brChartRegistry['nps-passfail'] = { title: 'จำนวนโรงงาน ผ่าน/ไม่ผ่านเกณฑ์ รายเดือน', type: 'bar', labels, datasets, options };
+        }
+
+        function renderNpsEnterpriseChart(records) {
+            const canvas = document.getElementById('npsEnterpriseChart');
+            if (!canvas) return;
+            if (npsEnterpriseChartInstance) npsEnterpriseChartInstance.destroy();
+
+            const byEnt = {};
+            records.forEach(r => {
+                const e = r.enterprise || 'ไม่ระบุ';
+                if (!byEnt[e]) byEnt[e] = [];
+                byEnt[e].push(r);
+            });
+
+            const ents = Object.keys(byEnt).sort();
+            const labels = ents;
+            const data = ents.map(e => {
+                const agg = aggregateNps(byEnt[e]);
+                return agg === null ? 0 : Math.round(agg * 10) / 10;
+            });
+            const colors = data.map(v => v >= NPS_THRESHOLD ? '#10b981' : '#ef4444');
+
+            const datasets = [{ label: 'NPS รวม (%)', data, backgroundColor: colors, borderRadius: 5 }];
+            const options = {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        anchor: 'end', align: 'top',
+                        color: (c) => c.dataset.data[c.dataIndex] >= NPS_THRESHOLD ? '#047857' : '#b91c1c',
+                        font: { weight: 'bold', size: 12 },
+                        formatter: (v) => `${v}%`
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: true, max: 100, grid: { color: '#f1f5f9' } }
+                }
+            };
+
+            npsEnterpriseChartInstance = new Chart(canvas.getContext('2d'), {
+                type: 'bar', data: { labels, datasets },
+                plugins: [npsThresholdLinePlugin], options
+            });
+            brChartRegistry['nps-enterprise'] = { title: 'NPS รวม รายกิจการ', type: 'bar', labels, datasets, options, plugins: [npsThresholdLinePlugin] };
+        }
+
+        function renderNpsEntPassFailChart(factories) {
+            const canvas = document.getElementById('npsEntPassFailChart');
+            if (!canvas) return;
+            if (npsEntPassFailChartInstance) npsEntPassFailChartInstance.destroy();
+
+            const agg = {};
+            factories.forEach(f => {
+                const e = f.enterprise || 'ไม่ระบุ';
+                if (!agg[e]) agg[e] = { pass: 0, fail: 0 };
+                if (f.avg >= NPS_THRESHOLD) agg[e].pass += 1; else agg[e].fail += 1;
+            });
+
+            const labels = Object.keys(agg).sort();
+            const dPass = labels.map(e => agg[e].pass);
+            const dFail = labels.map(e => agg[e].fail);
+
+            const datasets = [
+                { label: 'NPS ≥ 75%', data: dPass, backgroundColor: '#10b981', borderRadius: 4 },
+                { label: 'NPS < 75%', data: dFail, backgroundColor: '#ef4444', borderRadius: 4 }
+            ];
+            const options = {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    datalabels: {
+                        anchor: 'center', align: 'center',
+                        color: '#ffffff', font: { weight: 'bold', size: 11 },
+                        formatter: (v) => v > 0 ? v : ''
+                    }
+                },
+                scales: {
+                    x: { stacked: true, grid: { display: false } },
+                    y: { stacked: true, beginAtZero: true, grid: { color: '#f1f5f9' }, title: { display: true, text: 'จำนวนโรงงาน' } }
+                }
+            };
+
+            npsEntPassFailChartInstance = new Chart(canvas.getContext('2d'), { type: 'bar', data: { labels, datasets }, options });
+            brChartRegistry['nps-ent-passfail'] = { title: 'จำนวนโรงงาน ผ่าน/ไม่ผ่านเกณฑ์ รายกิจการ', type: 'bar', labels, datasets, options };
+        }
+
+        // รายชื่อโรงงานที่ NPS ต่ำกว่าเกณฑ์ แยกเป็นกลุ่มรายเดือน
+        // รายชื่อโรงงานที่ NPS ต่ำกว่าเกณฑ์ — รวมทุกเดือนไว้ในตารางเดียว มีคอลัมน์เดือนกำกับ
+        // นับจำนวนเดือนที่แสดงเป็นช่องแดง = เดือนที่ NPS ต่ำกว่าเกณฑ์ หรือไม่มีผู้ตอบเลย (แสดงเป็น 0.0)
+        function countRedMonths(f, start, end) {
+            let n = 0;
+            for (let m = start; m <= end; m++) {
+                const rec = f.months[m];
+                if (!rec || rec.nps < NPS_THRESHOLD) n++;
+            }
+            return n;
+        }
+
+        // ตารางเปรียบเทียบ NPS รายโรงงาน x รายเดือน (ใช้ร่วมกันทั้งตารางต่ำกว่าเกณฑ์และผ่านเกณฑ์)
+        function renderNpsMatrixTable(containerId, factories, start, end, emptyMsg) {
+            const wrap = document.getElementById(containerId);
+            if (!wrap) return;
+
+            if (factories.length === 0) {
+                wrap.innerHTML = `<p class="text-sm text-slate-400 text-center py-10">${emptyMsg}</p>`;
+                return;
+            }
+
+            let monthHeaders = '';
+            for (let m = start; m <= end; m++) {
+                monthHeaders += `<th class="py-2.5 px-3 font-semibold text-center whitespace-nowrap">${monthNamesShortTH[m - 1]}</th>`;
+            }
+
+            const rows = factories.map(f => {
+                let cells = '';
+                for (let m = start; m <= end; m++) {
+                    const rec = f.months[m];
+                    if (!rec) {
+                        // เดือนที่ไม่มีผู้ตอบแบบสอบถาม แสดงเป็น 0.0 และไฮไลต์แดงเหมือนเดือนที่ตกเกณฑ์
+                        cells += '<td class="py-2 px-3 text-center font-bold text-white" style="background:#ef4444;" title="ไม่มีผู้ตอบแบบสอบถามในเดือนนี้">0.0</td>';
+                    } else if (rec.nps < NPS_THRESHOLD) {
+                        cells += `<td class="py-2 px-3 text-center font-bold text-white" style="background:#ef4444;"
+                                      title="P/Pass/D = ${rec.promoter ?? '-'}/${rec.passive ?? '-'}/${rec.detractor ?? '-'}">${rec.nps.toFixed(1)}</td>`;
+                    } else {
+                        cells += `<td class="py-2 px-3 text-center font-semibold text-slate-700"
+                                      title="P/Pass/D = ${rec.promoter ?? '-'}/${rec.passive ?? '-'}/${rec.detractor ?? '-'}">${rec.nps.toFixed(1)}</td>`;
+                    }
+                }
+                // นับให้ตรงกับจำนวนช่องแดงที่แสดงจริง (รวมเดือนที่ไม่มีผู้ตอบซึ่งแสดงเป็น 0.0)
+                let redMonths = 0;
+                for (let m = start; m <= end; m++) {
+                    const rec = f.months[m];
+                    if (!rec || rec.nps < NPS_THRESHOLD) redMonths++;
+                }
+                const avgClass = f.avg < NPS_THRESHOLD
+                    ? 'bg-rose-50 text-rose-700 border-rose-200'
+                    : 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                return `
+                    <tr class="hover:bg-slate-50/80 transition border-b border-slate-100">
+                        <td class="py-2 px-3 text-slate-600 whitespace-nowrap">${f.enterprise}</td>
+                        <td class="py-2 px-3 text-slate-600 truncate max-w-[160px]" title="${f.company}">${f.company}</td>
+                        <td class="py-2 px-3 font-semibold text-slate-900 whitespace-nowrap">${f.factoryName}</td>
+                        <td class="py-2 px-3 text-center text-slate-500 text-xs">${f.type}</td>
+                        ${cells}
+                        <td class="py-2 px-3 text-center bg-slate-50">
+                            <span class="inline-block px-2 py-0.5 rounded text-xs font-bold border ${avgClass}">${f.avg.toFixed(1)}</span>
+                        </td>
+                        <td class="py-2 px-3 text-center font-bold text-rose-600">${redMonths}</td>
+                    </tr>`;
+            }).join('');
+
+            wrap.innerHTML = `
+                <div class="overflow-x-auto custom-scrollbar rounded-xl border border-slate-200">
+                    <table class="min-w-full text-sm">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th class="py-2.5 px-3 font-semibold text-left">กิจการ</th>
+                                <th class="py-2.5 px-3 font-semibold text-left">บริษัท</th>
+                                <th class="py-2.5 px-3 font-semibold text-left">โรงงาน</th>
+                                <th class="py-2.5 px-3 font-semibold text-center">Type</th>
+                                ${monthHeaders}
+                                <th class="py-2.5 px-3 font-semibold text-center bg-slate-200">NPS รวม</th>
+                                <th class="py-2.5 px-3 font-semibold text-center whitespace-nowrap">ต่ำกว่าเกณฑ์<br>(เดือน)</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>`;
+        }
+
+        // หาสาเหตุที่โรงงานไม่มีผล NPS โดยอ้างอิงข้อมูลจากไฟล์อื่นที่มีอยู่แล้ว
+        // (ไฟล์ ReportNPS.xlsx ไม่มีคอลัมน์สาเหตุโดยตรง จึงต้องอนุมานจากหลักฐานแวดล้อม)
+        // ลำดับความสำคัญ: Status ปิดถาวร > สถานะคุณภาพรายเดือน > ไม่มียอดผลิต > ไม่ระบุ
+        function getNpsNoDataReason(f, start, end) {
+            const code = f.fcplno;
+
+            // 0) ใช้ค่าจากคอลัมน์ "สาเหตุ" ใน sheet CAL ก่อนเสมอ (เป็นข้อมูลที่ผู้ใช้ระบุเอง)
+            if (f.reason) {
+                const r = f.reason;
+                let cls = 'bg-sky-50 text-sky-700 border-sky-200';
+                if (r.includes('ปิด')) cls = 'bg-amber-50 text-amber-700 border-amber-200';
+                else if (r.includes('ไม่มี') || r.includes('ไม่ได้')) cls = 'bg-slate-100 text-slate-600 border-slate-200';
+                else if (r.includes('น้อย')) cls = 'bg-rose-50 text-rose-700 border-rose-200';
+                return { text: r, cls };
+            }
+
+            // 1) โรงงานที่ถูกยกเว้นจากรายงานใน sheet Status ของไฟล์ยอดขาย
+            if (globalData.excludedFactories &&
+                (globalData.excludedFactories.has(code) || globalData.excludedFactories.has(f.factoryName))) {
+                return { text: 'ปิด / ยกเว้นจากรายงาน (Status = C)', cls: 'bg-slate-200 text-slate-700 border-slate-300' };
+            }
+
+            // 2) สถานะจากไฟล์ Quality (ปิดชั่วคราว / ผลิตไม่ถึง 10 วัน / ข้อมูลไม่มี) ในช่วงเดือนที่เลือก
+            const qRecs = (globalData.quality || []).filter(q =>
+                q.fcplno === code && q.month >= start && q.month <= end && q.qualityLevel);
+            if (qRecs.length > 0) {
+                const counts = {};
+                qRecs.forEach(q => { counts[q.qualityLevel] = (counts[q.qualityLevel] || 0) + 1; });
+                // สนใจเฉพาะสถานะที่บอกสาเหตุ ไม่ใช่ระดับคุณภาพปกติ
+                const reasons = ['ปิดชั่วคราว', 'ผลิตไม่ถึง 10 วัน', 'ข้อมูลไม่มี', 'ข้อมูลไม่พอ'];
+                let best = null, bestN = 0;
+                reasons.forEach(rs => {
+                    if ((counts[rs] || 0) > bestN) { bestN = counts[rs]; best = rs; }
+                });
+                if (best) {
+                    const cls = best === 'ปิดชั่วคราว'
+                        ? 'bg-amber-50 text-amber-700 border-amber-200'
+                        : 'bg-sky-50 text-sky-700 border-sky-200';
+                    return { text: `${best} (${bestN}/${qRecs.length} เดือน)`, cls };
+                }
+            }
+
+            // 3) ไม่มียอดผลิตในช่วงที่เลือกเลย
+            const salesRecs = (globalData.factory || []).filter(r =>
+                r.fcplno === code && r.month >= start && r.month <= end);
+            if (salesRecs.length > 0) {
+                const totalProd = salesRecs.reduce((sum, r) => sum + (r.prod2026 || 0), 0);
+                if (totalProd <= 0) {
+                    return { text: 'ไม่มียอดผลิตในช่วงที่เลือก', cls: 'bg-rose-50 text-rose-700 border-rose-200' };
+                }
+                return { text: 'มียอดผลิต แต่ยังไม่มีผลสำรวจ NPS', cls: 'bg-violet-50 text-violet-700 border-violet-200' };
+            }
+
+            return { text: 'ไม่ระบุ', cls: 'bg-slate-100 text-slate-500 border-slate-200' };
+        }
+
+        // ตารางโรงงานที่ไม่มีผล NPS เลยในช่วงที่เลือก
+        function renderNpsNoDataTable(noDataFactories, start, end) {
+            const wrap = document.getElementById('nps-nodata-table');
+            const countLabel = document.getElementById('nps-nodata-count');
+            if (!wrap) return;
+
+            if (countLabel) countLabel.textContent = `พบ ${noDataFactories.length.toLocaleString('en-US')} โรงงาน (ไม่มีผู้ตอบแบบสอบถามเลยในช่วงที่เลือก)`;
+
+            if (noDataFactories.length === 0) {
+                wrap.innerHTML = '<p class="text-sm text-slate-400 text-center py-10">ทุกโรงงานมีผล NPS ในช่วงที่เลือก</p>';
+                return;
+            }
+
+            const rows = noDataFactories.map(f => {
+                const reason = getNpsNoDataReason(f, start, end);
+                return `
+                <tr class="hover:bg-slate-50/80 transition border-b border-slate-100">
+                    <td class="py-2 px-3 text-slate-600 whitespace-nowrap">${f.enterprise || '-'}</td>
+                    <td class="py-2 px-3 text-slate-600 truncate max-w-[220px]" title="${f.company || '-'}">${f.company || '-'}</td>
+                    <td class="py-2 px-3 font-semibold text-slate-900 whitespace-nowrap">${f.factoryName || '-'}</td>
+                    <td class="py-2 px-3 text-center text-slate-500 text-xs">${f.type || '-'}</td>
+                    <td class="py-2 px-3 text-left">
+                        <span class="inline-block px-2 py-0.5 rounded text-xs font-semibold border ${reason.cls}">${reason.text}</span>
+                    </td>
+                </tr>`;
+            }).join('');
+
+            wrap.innerHTML = `
+                <div class="overflow-x-auto custom-scrollbar rounded-xl border border-slate-200">
+                    <table class="min-w-full text-sm">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th class="py-2.5 px-3 font-semibold text-left">กิจการ</th>
+                                <th class="py-2.5 px-3 font-semibold text-left">บริษัท</th>
+                                <th class="py-2.5 px-3 font-semibold text-left">โรงงาน</th>
+                                <th class="py-2.5 px-3 font-semibold text-center">Type</th>
+                                <th class="py-2.5 px-3 font-semibold text-left">สาเหตุ</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>`;
+        }
+
+        // จัดกลุ่มโรงงานเป็น 3 ตาราง: ไม่มีผล / ต่ำกว่าเกณฑ์ / ผ่านเกณฑ์
+        function renderNpsFactoryTables(factories, filteredMaster, start, end) {
+            // --- ไม่มีผล NPS: อยู่ในรายชื่อโรงงานทั้งหมด แต่ไม่มี record ในช่วงที่เลือก ---
+            const withData = new Set(factories.map(f => f.fcplno));
+            const noData = (filteredMaster || [])
+                .filter(f => !withData.has(f.fcplno))
+                .sort((a, b) => (a.enterprise || '').localeCompare(b.enterprise || '', 'th')
+                    || (a.factoryName || '').localeCompare(b.factoryName || '', 'th'));
+            renderNpsNoDataTable(noData, start, end);
+
+            // --- ต่ำกว่าเกณฑ์: NPS รวมของโรงงาน < 75% (แย่สุดขึ้นก่อน) ---
+            const below = factories.filter(f => f.avg < NPS_THRESHOLD)
+                .sort((a, b) => a.avg - b.avg);
+            const belowLabel = document.getElementById('nps-below-count');
+            if (belowLabel) {
+                const cells = below.reduce((s, f) => s + countRedMonths(f, start, end), 0);
+                belowLabel.textContent = `พบ ${below.length.toLocaleString('en-US')} โรงงาน `
+                    + `(รวม ${cells.toLocaleString('en-US')} เดือนที่ตกเกณฑ์) — ช่องสีแดง = NPS < 75% หรือไม่มีผู้ตอบ (แสดงเป็น 0.0)`;
+            }
+            renderNpsMatrixTable('nps-below-monthly', below, start, end,
+                'ไม่มีโรงงานที่ NPS รวมต่ำกว่าเกณฑ์ในช่วงที่เลือก');
+
+            // --- ผ่านเกณฑ์: NPS รวม >= 75% (ดีสุดขึ้นก่อน) ---
+            const above = factories.filter(f => f.avg >= NPS_THRESHOLD)
+                .sort((a, b) => b.avg - a.avg);
+            const aboveLabel = document.getElementById('nps-above-count');
+            if (aboveLabel) {
+                const cells = above.reduce((s, f) => s + countRedMonths(f, start, end), 0);
+                aboveLabel.textContent = `พบ ${above.length.toLocaleString('en-US')} โรงงาน`
+                    + (cells > 0 ? ` — แม้ NPS รวมผ่านเกณฑ์ แต่ยังมี ${cells.toLocaleString('en-US')} เดือนที่ตกเกณฑ์/ไม่มีผู้ตอบ (ช่องสีแดง)` : '');
+            }
+            renderNpsMatrixTable('nps-above-monthly', above, start, end,
+                'ไม่มีโรงงานที่ NPS รวมผ่านเกณฑ์ในช่วงที่เลือก');
+        }
+
         function initApp() {
             // โหลดไฟล์ Excel อัตโนมัติจาก GitHub Repository (ชื่อ DashboardSaleAI.xlsx เป็นอันดับแรก)
             loadDefaultExcelFromRepo();
@@ -3125,6 +4035,23 @@
 
             const pdfBtn = document.getElementById('br-btn-download-pdf');
             if (pdfBtn) pdfBtn.addEventListener('click', exportBRToPDF);
+
+            // ----- NPS tab filters -----
+            document.getElementById('nps-filter-enterprise').addEventListener('change', updateNpsTab);
+            document.getElementById('nps-filter-type').addEventListener('change', updateNpsTab);
+            document.getElementById('nps-filter-start-month').addEventListener('change', updateNpsTab);
+            document.getElementById('nps-filter-end-month').addEventListener('change', () => {
+                npsEndMonthUserSet = true;
+                updateNpsTab();
+            });
+            document.getElementById('nps-btn-reset').addEventListener('click', () => {
+                document.getElementById('nps-filter-enterprise').value = 'ALL';
+                document.getElementById('nps-filter-type').value = 'ALL';
+                document.getElementById('nps-filter-start-month').value = '1';
+                npsEndMonthUserSet = false;
+                setNpsDefaultEndMonth();
+                updateNpsTab();
+            });
         }
 
         // หมายเหตุ: initApp() ไม่ถูกเรียกที่ window.onload อีกต่อไป
