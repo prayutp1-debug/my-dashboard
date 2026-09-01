@@ -807,6 +807,7 @@
             companyMap: {},
             types: [],
             excludedFactories: new Set(),
+            factories2026: new Set(),
             quality: [],
             nps: []
         };
@@ -1576,6 +1577,7 @@
                 companyMap: {},
                 types: [],
                 excludedFactories: new Set(),
+                factories2026: new Set(),
                 quality: globalData.quality || [],
                 nps: globalData.nps || []
             };
@@ -1592,10 +1594,15 @@
             let enterprisesSet = new Set();
             let companyMap = {};
             let typesSet = new Set();
+            // รายชื่อโรงงานที่มีอยู่จริงใน sheet 2026 (ใช้กรองตารางยอดผลิตรายโรงงาน
+            // ไม่ให้โรงงานที่มีเฉพาะใน sheet 2025 หรือ PLAN2026 หลุดเข้ามา)
+            let factories2026 = new Set();
 
             records2026.forEach(r => {
                 if (r.month) {
                     enterprisesSet.add(r.enterprise);
+                    if (r.fcplno) factories2026.add(String(r.fcplno).trim());
+                    if (r.plant) factories2026.add(String(r.plant).trim());
                     if (!companyMap[r.enterprise]) companyMap[r.enterprise] = new Set();
                     companyMap[r.enterprise].add(r.company);
                     if (r.type) typesSet.add(r.type);
@@ -1686,6 +1693,7 @@
                 companyMap: formattedCompanyMap,
                 types: Array.from(typesSet),
                 excludedFactories: excludedFactories,
+                factories2026: factories2026,
                 quality: globalData.quality || [],
                 nps: globalData.nps || []
             };
@@ -2421,6 +2429,13 @@
                 // ใช้รหัส FCPLNO เป็นตัวจับคู่หลัก (แม่นยำกว่าชื่อโรงงานที่อาจสะกดต่างกันเล็กน้อย)
                 // หากไม่มีรหัส จะ fallback ไปใช้ชื่อโรงงานแทน
                 const groupKey = code || fname;
+
+                // ข้ามโรงงานที่ไม่มีอยู่ใน sheet 2026 (เช่น มีเฉพาะใน 2025 หรือ PLAN2026)
+                const f2026 = globalData.factories2026;
+                if (f2026 && f2026.size > 0) {
+                    const inSheet2026 = (code && f2026.has(code)) || f2026.has(fname);
+                    if (!inSheet2026) return;
+                }
 
                 if (globalData.excludedFactories) {
                     if ((code && globalData.excludedFactories.has(code)) || globalData.excludedFactories.has(fname)) {
