@@ -4531,7 +4531,9 @@
             return Math.abs(base - el.y);
         }
 
-        function renderTgStackedChart(canvasId, instanceSetter, oldInstance, labels, datasets, isPercent, registryKey, title) {
+        // forceRotation: บังคับองศาของตัวเลขทุกตัวในกราฟให้เท่ากัน (270 = หัวตัวอักษรเอียงไปทางซ้าย)
+        //                ถ้าไม่ส่งมา จะสลับแนวตั้ง/แนวนอนอัตโนมัติตามความสูงของแท่งย่อย
+        function renderTgStackedChart(canvasId, instanceSetter, oldInstance, labels, datasets, isPercent, registryKey, title, forceRotation) {
             const canvas = document.getElementById(canvasId);
             if (!canvas) return null;
             if (oldInstance) oldInstance.destroy();
@@ -4548,6 +4550,7 @@
                         // แท่งย่อยที่สูงพอวางตัวเลขแนวตั้ง (หมุน 270) ถ้าเตี้ยให้วางแนวนอนแทน
                         // กราฟ % วางแนวนอนตลอด เพื่อไม่ให้ตัวเลขซ้อนกัน
                         rotation: (ctx) => {
+                            if (forceRotation !== undefined && forceRotation !== null) return forceRotation;
                             if (isPercent) return 0;
                             return tgSegmentHeight(ctx) >= 44 ? 270 : 0;
                         },
@@ -4562,6 +4565,7 @@
                             if (!v) return false;
                             const segH = tgSegmentHeight(ctx);
                             if (segH === null) return true;
+                            if (forceRotation !== undefined && forceRotation !== null) return segH >= 10;
                             return isPercent ? segH >= 14 : segH >= 12;
                         },
                         formatter: (v) => {
@@ -4682,8 +4686,9 @@
                 });
             }
 
+            // กราฟนี้ให้ตัวเลขทุกตัวเอียงหัวไปทางซ้ายเหมือนกันหมด (ไม่สลับเป็นแนวนอนเวลาแท่งเตี้ย)
             tgTypeChartInstance = renderTgStackedChart('tgTypeChart', null, tgTypeChartInstance,
-                labels, typeDatasets, false, 'tg-type', 'ยอดผลิตแยก Type รายเดือน (รวมยอด CPAC)');
+                labels, typeDatasets, false, 'tg-type', 'ยอดผลิตแยก Type รายเดือน (รวมยอด CPAC)', 270);
 
             // กราฟสัดส่วน (%) คิดจากยอดรวมทั้งหมด S + N+X + CPAC ในเดือนนั้น = 100%
             tgTypePctChartInstance = renderTgStackedChart('tgTypePctChart', null, tgTypePctChartInstance,
