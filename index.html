@@ -3661,7 +3661,7 @@
                 // ตัดรูปหนึ่งช่วง (canvas px) แล้ววางลง PDF
                 const placeSlice = (canvas, top, sliceH, pxPerMM, forceNewPage) => {
                     sliceCanvas.width = canvas.width;
-                    sliceCanvas.height = Math.max(1, Math.round(sliceH));
+                    sliceCanvas.height = Math.max(1, Math.floor(sliceH));
                     sliceCtx.fillStyle = '#ffffff';
                     sliceCtx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
                     sliceCtx.drawImage(canvas, 0, top, canvas.width, sliceCanvas.height, 0, 0, canvas.width, sliceCanvas.height);
@@ -3677,12 +3677,16 @@
                     false
                 );
 
-                // แต่ละหัวข้อขึ้นหน้าใหม่ พยายามให้จบในหน้าเดียว ถ้าไม่พอค่อยตัดที่ขอบการ์ด
+                // หัวข้อ "รายโรงงาน" ให้ไหลต่อจากกราฟรวมของเรื่องเดียวกัน ไม่ต้องขึ้นหน้าใหม่
+                // ส่วนหัวข้ออื่นขึ้นหน้าใหม่และพยายามให้จบในหน้าเดียว
                 const sections = Array.from(captureArea.children).filter(el => el !== pdfHeader);
 
                 for (let si = 0; si < sections.length; si++) {
                     const sec = sections[si];
                     if (!sec.offsetHeight) continue;
+
+                    const isContinuation = !!sec.querySelector('#br-factory-sales-grid, #br-factory-nps-grid');
+                    const startNewPage = si > 0 && !isContinuation;
 
                     const secRect = sec.getBoundingClientRect();
                     const cards = Array.from(sec.querySelectorAll(
@@ -3692,39 +3696,66 @@
                         const r = el.getBoundingClientRect();
                         return { top: (r.top - secRect.top) * scale, bottom: (r.bottom - secRect.top) * scale };
                     }).sort((a, b) => a.top - b.top);
+                    // มัดหัวข้อไว้กับการ์ดใบแรก กันไม่ให้ชื่อหัวข้อค้างอยู่ท้ายหน้าตามลำพัง
+                    if (blocks.length > 0) blocks.unshift({ top: 0, bottom: blocks[0].bottom });
 
                     const canvas = await html2canvas(sec, { backgroundColor: '#ffffff', scale, useCORS: true });
                     const pxPerMM = canvas.width / contentW;
                     const fullH = canvas.height / pxPerMM;
 
-                    // หัวข้อนี้จบในหน้าเดียวได้ → วางทั้งก้อน
-                    if (fullH <= contentH) {
-                        placeImage(canvas.toDataURL('image/jpeg', 0.95), contentW, fullH, si > 0);
-                        continue;
+                    if (!isContinuation) {
+                        // หัวข้อนี้จบในหน้าเดียวได้ → วางทั้งก้อน
+                        if (fullH <= contentH) {
+                            placeImage(canvas.toDataURL('image/jpeg', 0.95), contentW, fullH, startNewPage);
+                            continue;
+                        }
+                        // สูงเกินนิดเดียว → ย่อให้พอดีหนึ่งหน้า เพื่อไม่ต้องแยกหน้า
+                        if (fullH <= contentH * 1.18) {
+                            const k = contentH / fullH;
+                            placeImage(canvas.toDataURL('image/jpeg', 0.95), contentW * k, contentH, true);
+                            continue;
+                        }
                     }
 
-                    // สูงเกินนิดเดียว → ย่อให้พอดีหนึ่งหน้า เพื่อไม่ต้องแยกหน้า
-                    if (fullH <= contentH * 1.18) {
-                        const k = contentH / fullH;
-                        placeImage(canvas.toDataURL('image/jpeg', 0.95), contentW * k, contentH, true);
-                        continue;
-                    }
-
-                    // สูงเกินจริง → ตัดที่ขอบการ์ด เฉพาะการ์ดที่ล้นถึงจะไปหน้าถัดไป
-                    const pageContentPx = contentH * pxPerMM;
+                    // ไหลต่อจากตำแหน่งปัจจุบัน ตัดที่ขอบการ์ดเสมอ
+                    // การ์ดใบไหนไม่พอในหน้านี้ ก็ยกไปหน้าถัดไปทั้งใบ
                     let top = 0;
+                    let firstSlice = true;
                     while (top < canvas.height - 1) {
-                        let bottom = Math.min(top + pageContentPx, canvas.height);
+                        if (firstSlice && startNewPage && hasContent) {
+                            pdf.addPage();
+                            cursorY = margin;
+                        }
+                        firstSlice = false;
+
+                        let availMM = (pageH - margin) - cursorY - 0.5;
+                        if (availMM < 30) {
+                            pdf.addPage();
+                            cursorY = margin;
+                            availMM = contentH;
+                        }
+                        const availPx = availMM * pxPerMM;
+
+                        let bottom = Math.min(top + availPx, canvas.height);
                         if (bottom < canvas.height) {
                             let cut = bottom;
                             blocks.forEach(b => {
-                                if (b.top > top + 1 && b.top < bottom - 1 && b.bottom > bottom) {
+                                if (b.top >= top && b.top < bottom - 1 && b.bottom > bottom) {
                                     cut = Math.min(cut, b.top);
                                 }
                             });
-                            if (cut > top + pageContentPx * 0.2) bottom = cut;
+                            if (cut > top + 1) {
+                                bottom = cut;
+                            } else if (availMM < contentH - 1) {
+                                // การ์ดใบถัดไปไม่พอในพื้นที่ที่เหลือ → ขึ้นหน้าใหม่แล้วคิดใหม่
+                                pdf.addPage();
+                                cursorY = margin;
+                                continue;
+                            }
                         }
-                        placeSlice(canvas, top, bottom - top, pxPerMM, true);
+
+                        if (bottom - top < 1) bottom = Math.min(top + availPx, canvas.height);
+                        placeSlice(canvas, top, bottom - top, pxPerMM, false);
                         top = bottom;
                     }
                 }
