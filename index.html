@@ -148,6 +148,9 @@
             <button id="tab-btn-dashboard" onclick="switchTab('dashboard')" class="h-full px-4 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition">
                 <i class="fa-solid fa-industry mr-1.5"></i>แดชบอร์ดการผลิต
             </button>
+            <button id="tab-btn-typegrade" onclick="switchTab('typegrade')" class="h-full px-4 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition">
+                <i class="fa-solid fa-layer-group mr-1.5"></i>Type &amp; เกรด
+            </button>
             <button id="tab-btn-nps" onclick="switchTab('nps')" class="h-full px-4 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition">
                 <i class="fa-solid fa-face-smile mr-1.5"></i>NPS
             </button>
@@ -769,6 +772,182 @@
     </div>
     <!-- /view-nps -->
 
+    <!-- ============ TYPE & GRADE TAB ============ -->
+    <div id="view-typegrade" class="hidden">
+        <section class="bg-white border-b border-slate-200 py-3 sticky top-[108px] z-20 shadow-xs">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 items-end">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">กิจการ (Enterprise)</label>
+                        <select id="tg-filter-enterprise" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2">
+                            <option value="ALL">ทั้งหมด (All Enterprises)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">เดือนเริ่มต้น (Start Month)</label>
+                        <select id="tg-filter-start-month" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2">
+                            <option value="1">มกราคม (Jan)</option><option value="2">กุมภาพันธ์ (Feb)</option>
+                            <option value="3">มีนาคม (Mar)</option><option value="4">เมษายน (Apr)</option>
+                            <option value="5">พฤษภาคม (May)</option><option value="6">มิถุนายน (Jun)</option>
+                            <option value="7">กรกฎาคม (Jul)</option><option value="8">สิงหาคม (Aug)</option>
+                            <option value="9">กันยายน (Sep)</option><option value="10">ตุลาคม (Oct)</option>
+                            <option value="11">พฤศจิกายน (Nov)</option><option value="12">ธันวาคม (Dec)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">เดือนสิ้นสุด (End Month)</label>
+                        <select id="tg-filter-end-month" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2">
+                            <option value="1">มกราคม (Jan)</option><option value="2">กุมภาพันธ์ (Feb)</option>
+                            <option value="3">มีนาคม (Mar)</option><option value="4">เมษายน (Apr)</option>
+                            <option value="5">พฤษภาคม (May)</option><option value="6">มิถุนายน (Jun)</option>
+                            <option value="7">กรกฎาคม (Jul)</option><option value="8">สิงหาคม (Aug)</option>
+                            <option value="9">กันยายน (Sep)</option><option value="10">ตุลาคม (Oct)</option>
+                            <option value="11">พฤศจิกายน (Nov)</option><option value="12" selected>ธันวาคม (Dec)</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button id="tg-btn-reset" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm py-2 px-4 rounded-lg transition flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-rotate-right"></i><span>รีเซ็ตตัวกรอง</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow space-y-6">
+            <div id="tg-empty-hint" class="hidden bg-white rounded-2xl border border-slate-100 card-shadow p-14 text-center text-slate-400">
+                <i class="fa-solid fa-layer-group text-4xl mb-3"></i>
+                <p class="text-sm">ไม่พบข้อมูลยอดผลิตในช่วงที่เลือก</p>
+            </div>
+
+            <div id="tg-content" class="space-y-6">
+                <!-- KPI สรุป -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow relative overflow-hidden">
+                        <div class="absolute right-3 top-3 text-blue-100 text-4xl pointer-events-none"><i class="fa-solid fa-cubes"></i></div>
+                        <p class="text-xs font-semibold text-slate-400 tracking-wider uppercase">ยอดผลิตรวม 2026</p>
+                        <h3 id="tg-kpi-total" class="text-2xl font-bold text-slate-900 mt-2">0</h3>
+                        <p class="text-xs text-slate-500 mt-1">พัน ลบ.ม.</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow relative overflow-hidden">
+                        <div class="absolute right-3 top-3 text-emerald-100 text-4xl pointer-events-none"><i class="fa-solid fa-building"></i></div>
+                        <p class="text-xs font-semibold text-slate-400 tracking-wider uppercase">Type S (Stand Alone)</p>
+                        <div class="flex items-baseline gap-2 mt-2">
+                            <h3 id="tg-kpi-s" class="text-2xl font-bold text-emerald-600">0</h3>
+                            <span id="tg-kpi-s-pct" class="text-sm font-semibold text-emerald-600">(0%)</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">พัน ลบ.ม.</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow relative overflow-hidden">
+                        <div class="absolute right-3 top-3 text-violet-100 text-4xl pointer-events-none"><i class="fa-solid fa-network-wired"></i></div>
+                        <p class="text-xs font-semibold text-slate-400 tracking-wider uppercase">Type N+X (Network)</p>
+                        <div class="flex items-baseline gap-2 mt-2">
+                            <h3 id="tg-kpi-nx" class="text-2xl font-bold text-violet-600">0</h3>
+                            <span id="tg-kpi-nx-pct" class="text-sm font-semibold text-violet-600">(0%)</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">พัน ลบ.ม.</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow relative overflow-hidden">
+                        <div class="absolute right-3 top-3 text-amber-100 text-4xl pointer-events-none"><i class="fa-solid fa-industry"></i></div>
+                        <p class="text-xs font-semibold text-slate-400 tracking-wider uppercase">จำนวนโรงงาน</p>
+                        <h3 id="tg-kpi-factories" class="text-2xl font-bold text-slate-900 mt-2">0</h3>
+                        <p class="text-xs text-slate-500 mt-1">ที่มียอดผลิตในช่วงที่เลือก</p>
+                    </div>
+                </div>
+
+                <!-- แถวที่ 2 ของ KPI: %Variance เทียบแผน -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div id="tg-plan-cpac-box" class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow relative overflow-hidden"></div>
+                    <div id="tg-plan-nx-box" class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow relative overflow-hidden"></div>
+                    <div id="tg-plan-s-box" class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow relative overflow-hidden"></div>
+                </div>
+
+                <!-- ส่วนที่ 2: แยก Type -->
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-2xl border border-slate-100 card-shadow p-6">
+                        <div class="flex items-center justify-between flex-wrap gap-3 mb-1">
+                            <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                                <i class="fa-solid fa-chart-column text-blue-600"></i>
+                                <span>1. ยอดผลิตแยก Type รายเดือน</span>
+                            </h2>
+                            <button onclick="expandBRChart('tg-type')" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 transition" title="ขยายกราฟ">
+                                <i class="fa-solid fa-expand text-xs"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-4">หน่วย: พัน ลบ.ม. &bull; ซ้อนจากล่างขึ้นบน: CPAC &rarr; N+X &rarr; S<br>S = Stand Alone &bull; N+X = Network &bull; CPAC = ยอดผลิต CPAC (sheet CPAC2026)</p>
+                        <div style="height: 340px;"><canvas id="tgTypeChart"></canvas></div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-100 card-shadow p-6">
+                        <div class="flex items-center justify-between flex-wrap gap-3 mb-1">
+                            <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                                <i class="fa-solid fa-chart-pie text-blue-600"></i>
+                                <span>2. สัดส่วน Type รายเดือน (%)</span>
+                            </h2>
+                            <button onclick="expandBRChart('tg-type-pct')" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 transition" title="ขยายกราฟ">
+                                <i class="fa-solid fa-expand text-xs"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-4">สัดส่วนยอดผลิตของแต่ละ Type ในเดือนนั้น (S + N+X + CPAC = 100%)</p>
+                        <div style="height: 340px;"><canvas id="tgTypePctChart"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- ส่วนที่ 3: แยกเกรด — ภาพรวมก่อน แล้วค่อยแยกทีละเกรด -->
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-2xl border border-slate-100 card-shadow p-6">
+                        <div class="flex items-center justify-between flex-wrap gap-3 mb-1">
+                            <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                                <i class="fa-solid fa-chart-line text-amber-600"></i>
+                                <span>3. ยอดผลิตรวมทุกเกรด รายเดือน</span>
+                            </h2>
+                            <button onclick="expandBRChart('tg-grade')" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 transition" title="ขยายกราฟ">
+                                <i class="fa-solid fa-expand text-xs"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-4">แนวโน้มยอดผลิตของเกรด A / B / C / D ในแต่ละเดือน (หน่วย: พัน ลบ.ม.)</p>
+                        <div style="height: 360px;"><canvas id="tgGradeChart"></canvas></div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-100 card-shadow p-6">
+                        <div class="flex items-center justify-between flex-wrap gap-3 mb-1">
+                            <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                                <i class="fa-solid fa-percent text-amber-600"></i>
+                                <span>4. สัดส่วนเกรด รายเดือน (%)</span>
+                            </h2>
+                            <button onclick="expandBRChart('tg-grade-pct')" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 transition" title="ขยายกราฟ">
+                                <i class="fa-solid fa-expand text-xs"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-4">สัดส่วนยอดผลิตของแต่ละเกรดในเดือนนั้น</p>
+                        <div style="height: 360px;"><canvas id="tgGradePctChart"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow p-6">
+                    <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2 mb-1">
+                        <i class="fa-solid fa-layer-group text-amber-600"></i>
+                        <span>5. ยอดผลิตรายเดือน แยกทีละเกรด</span>
+                    </h2>
+                    <p id="tg-grade-count" class="text-xs text-slate-400 mb-4">เกรด A / B / C / D</p>
+                    <div id="tg-grade-grid" class="grid grid-cols-1 xl:grid-cols-2 gap-6"></div>
+                </div>
+
+                <!-- ตารางสรุป -->
+                <div class="bg-white rounded-2xl border border-slate-100 card-shadow p-6">
+                    <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2 mb-1">
+                        <i class="fa-solid fa-table text-slate-600"></i>
+                        <span>6. ตารางสรุปยอดผลิต แยก Type และเกรด</span>
+                    </h2>
+                    <p class="text-xs text-slate-400 mb-4">หน่วย: พัน ลบ.ม.</p>
+                    <div id="tg-summary-table"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- /view-typegrade -->
+
+
     <!-- Chart Expand Modal -->
     <div id="chart-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-5xl relative shadow-2xl">
@@ -812,6 +991,11 @@
             nps: []
         };
 
+        // ยอดผลิตของ CPAC รายกิจการ/รายเดือน (อ่านจาก sheet "CPAC2026" ในไฟล์ DashboardSaleAI.xlsx)
+        let cpacMonthly = [];
+        // แผนของ CPAC รายกิจการ/รายเดือน (อ่านจาก sheet "PLANCPAC2026")
+        let cpacPlanMonthly = [];
+
         let currentPage = 1;
         const pageSize = 10;
         let tableSortAscending = true;
@@ -836,6 +1020,23 @@
         let npsEntPassFailChartInstance = null;
 
         const NPS_THRESHOLD = 75;
+
+        // Type & Grade tab chart instances
+        let tgTypeChartInstance = null;
+        let tgTypePctChartInstance = null;
+        let tgGradeChartInstance = null;
+        let tgGradePctChartInstance = null;
+        let tgGradeChartInstances = [];
+        let tgEndMonthUserSet = false;
+
+        // แปลงค่า TYPE ในไฟล์ Excel ให้เป็นป้ายกำกับที่ใช้แสดงผล
+        // (Stand Alone = S, Network = N+X ตรวจสอบแล้วว่าตรงกับ Type ในไฟล์ NPS แบบ 1:1)
+        function normalizeTypeLabel(t) {
+            const v = String(t || '').trim().toLowerCase();
+            if (v.includes('stand')) return 'S';
+            if (v.includes('network')) return 'N+X';
+            return String(t || 'ไม่ระบุ').trim();
+        }
         // รายชื่อโรงงานทั้งหมดจาก sheet CAL (รวมโรงงานที่ยังไม่มีผู้ตอบเลย) — ใช้ทำตาราง "ไม่มีผล NPS"
         let npsMasterFactories = null;
 
@@ -1139,6 +1340,40 @@
             }
 
             return records;
+        }
+
+        // ===== DashboardSaleAI.xlsx — sheet "CPAC2026" =====
+        // โครงสร้าง: คอลัมน์ A = ชื่อกิจการ (1-Metro, 2-East, ...) ตามด้วยคอลัมน์รายเดือน JAN..DEC และ TOTAL
+        // แถวสุดท้ายที่คอลัมน์ A ว่าง คือแถวผลรวม ต้องข้ามไปไม่งั้นยอดจะซ้ำสองเท่า
+        function parseCpacSheet(sheet) {
+            if (!sheet) return [];
+            const matrix = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null });
+            if (!matrix || matrix.length < 2) return [];
+
+            const header = matrix[0] || [];
+            const monthCols = [];
+            header.forEach((h, idx) => {
+                if (idx === 0) return;
+                const label = String(h || '').trim().toLowerCase();
+                if (!label || label.includes('total') || label.includes('รวม')) return;
+                const m = parseMonthValue(h);
+                if (m) monthCols.push({ idx, month: m });
+            });
+            if (monthCols.length === 0) return [];
+
+            const out = [];
+            for (let r = 1; r < matrix.length; r++) {
+                const row = matrix[r];
+                if (!row) continue;
+                const ent = (row[0] === null || row[0] === undefined) ? '' : String(row[0]).trim();
+                if (!ent) continue;
+                if (/^(total|grand|รวม|ผลรวม)/i.test(ent)) continue;
+                monthCols.forEach(mc => {
+                    const v = parseNumber(row[mc.idx]);
+                    if (v) out.push({ enterprise: ent, month: mc.month, volume: v });
+                });
+            }
+            return out;
         }
 
         function findSheet(workbook, nameKeywords) {
@@ -1481,6 +1716,13 @@
             let recordsPlan = parseSheetRows(sheetPlan, 'PLAN');
             let excludedFactories = parseStatusSheet(sheetStatus);
 
+            // ยอดผลิต CPAC (sheet "CPAC2026") ใช้ในกราฟ "ยอดผลิตแยก Type รายเดือน" ของแท็บ Type & เกรด
+            let sheetCpac = workbook.Sheets['CPAC2026'] || findSheet(workbook, ['cpac2026']);
+            cpacMonthly = parseCpacSheet(sheetCpac);
+            let sheetCpacPlan = workbook.Sheets['PLANCPAC2026'] || findSheet(workbook, ['plancpac2026']);
+            cpacPlanMonthly = parseCpacSheet(sheetCpacPlan);
+            console.log(`อ่าน sheet CPAC2026 ได้ ${cpacMonthly.length} แถว, PLANCPAC2026 ได้ ${cpacPlanMonthly.length} แถว`);
+
             processExcelData(records2026, records2025, recordsPlan, excludedFactories, sourceName);
         }
 
@@ -1581,11 +1823,15 @@
                 quality: globalData.quality || [],
                 nps: globalData.nps || []
             };
+            cpacMonthly = [];
+            cpacPlanMonthly = [];
             populateEnterpriseDropdown();
             populateTypeDropdown();
             updateDashboard();
             populateBREnterpriseDropdown();
             updateBusinessReview();
+            populateTgEnterpriseDropdown();
+            updateTypeGradeTab();
         }
 
         function processExcelData(records2026, records2025, recordsPlan, excludedFactories = new Set(), sourceName = '') {
@@ -1598,11 +1844,30 @@
             // ไม่ให้โรงงานที่มีเฉพาะใน sheet 2025 หรือ PLAN2026 หลุดเข้ามา)
             let factories2026 = new Set();
 
+            // สร้างรายชื่อโรงงานใน sheet 2026 ให้ครบก่อน แล้วค่อยกรองทุกชุดข้อมูลด้วยเกณฑ์เดียวกัน
             records2026.forEach(r => {
-                if (r.month) {
+                if (!r.month) return;
+                if (r.fcplno) factories2026.add(String(r.fcplno).trim());
+                if (r.plant) factories2026.add(String(r.plant).trim());
+            });
+
+            // เกณฑ์กลางของทุกแท็บ: ตัดโรงงานที่ status = C ใน sheet Status
+            // และตัดโรงงานที่มีเฉพาะใน sheet 2025 / PLAN2026 แต่ไม่มีอยู่จริงใน sheet 2026
+            const isFactoryIncluded = (r) => {
+                const code = String(r.fcplno || '').trim();
+                const name = String(r.plant || '').trim();
+                if (excludedFactories && ((code && excludedFactories.has(code)) || (name && excludedFactories.has(name)))) {
+                    return false;
+                }
+                if (factories2026.size > 0 && !((code && factories2026.has(code)) || (name && factories2026.has(name)))) {
+                    return false;
+                }
+                return true;
+            };
+
+            records2026.forEach(r => {
+                if (r.month && isFactoryIncluded(r)) {
                     enterprisesSet.add(r.enterprise);
-                    if (r.fcplno) factories2026.add(String(r.fcplno).trim());
-                    if (r.plant) factories2026.add(String(r.plant).trim());
                     if (!companyMap[r.enterprise]) companyMap[r.enterprise] = new Set();
                     companyMap[r.enterprise].add(r.company);
                     if (r.type) typesSet.add(r.type);
@@ -1635,7 +1900,7 @@
             });
 
             records2025.forEach(r => {
-                if (r.month) {
+                if (r.month && isFactoryIncluded(r)) {
                     factoryData.push({
                         factoryName: r.plant,
                         fcplno: r.fcplno,
@@ -1656,7 +1921,7 @@
             });
 
             recordsPlan.forEach(r => {
-                if (r.month) {
+                if (r.month && isFactoryIncluded(r)) {
                     factoryData.push({
                         factoryName: r.plant,
                         fcplno: r.fcplno,
@@ -1707,6 +1972,9 @@
                 document.getElementById('br-filter-end-month').value = getMaxMonthWithData();
             }
             updateBusinessReview();
+            populateTgEnterpriseDropdown();
+            setTgDefaultEndMonth();
+            updateTypeGradeTab();
 
             if (sourceName && sourceName !== 'GitHub Repo') {
                 showToast('นำเข้าข้อมูลสำเร็จ', `อ่านข้อมูลจากไฟล์ ${sourceName} เรียบร้อย`, true);
@@ -2706,6 +2974,7 @@
         const TAB_CONFIG = [
             { key: 'business-review', btn: 'tab-btn-business-review', view: 'view-business-review', onShow: () => updateBusinessReview() },
             { key: 'dashboard', btn: 'tab-btn-dashboard', view: 'view-dashboard', onShow: null },
+            { key: 'typegrade', btn: 'tab-btn-typegrade', view: 'view-typegrade', onShow: () => updateTypeGradeTab() },
             { key: 'nps', btn: 'tab-btn-nps', view: 'view-nps', onShow: () => updateNpsTab() }
         ];
 
@@ -2990,7 +3259,7 @@
                 card.className = 'bg-slate-50 rounded-xl border border-slate-200 p-4 relative';
                 card.innerHTML = `
                     <div class="flex items-center justify-between gap-2 mb-2">
-                        <h4 class="text-xs font-bold text-slate-700 truncate" title="${f.name}">${f.name}</h4>
+                        <h4 class="text-sm font-bold text-slate-800 leading-snug break-words" title="${f.name}">${f.name}</h4>
                         <button onclick="expandBRChart('${chartKey}')" class="w-6 h-6 flex-shrink-0 flex items-center justify-center rounded-md bg-white hover:bg-slate-200 text-slate-500 border border-slate-200 transition" title="ขยายกราฟ">
                             <i class="fa-solid fa-expand text-[10px]"></i>
                         </button>
@@ -3151,7 +3420,7 @@
                 const card = document.createElement('div');
                 card.className = 'bg-slate-50 rounded-xl border border-slate-200 p-4';
                 card.innerHTML = `
-                    <h4 class="text-xs font-bold text-slate-700 mb-2 truncate" title="${f.name}">${f.name}</h4>
+                    <h4 class="text-sm font-bold text-slate-800 mb-2 leading-snug break-words" title="${f.name}">${f.name}</h4>
                     <div style="height: 210px;"><canvas id="${canvasId}"></canvas></div>
                 `;
                 grid.appendChild(card);
@@ -3313,7 +3582,7 @@
 
                 card.innerHTML = `
                     <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200">
-                        <h4 class="text-xs font-bold text-slate-800 truncate" title="${f.name}">
+                        <h4 class="text-sm font-bold text-slate-800 leading-snug break-words" title="${f.name}">
                             <i class="fa-solid fa-industry text-amber-500 mr-1.5"></i>${f.name}
                         </h4>
                     </div>
@@ -3361,31 +3630,103 @@
             captureArea.insertBefore(pdfHeader, captureArea.firstChild);
 
             try {
-                await new Promise(r => setTimeout(r, 300)); // เผื่อเวลาให้ layout นิ่งก่อน capture
+                await new Promise(r => setTimeout(r, 400)); // เผื่อเวลาให้ layout นิ่งก่อน capture
 
-                const canvas = await html2canvas(captureArea, {
-                    backgroundColor: '#f8fafc',
-                    scale: 2,
-                    useCORS: true
-                });
-
+                const scale = 2;
                 const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
                 const pageW = pdf.internal.pageSize.getWidth();
                 const pageH = pdf.internal.pageSize.getHeight();
-                const imgW = pageW;
-                const imgH = (canvas.height * imgW) / canvas.width;
-                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const margin = 5;
+                const contentW = pageW - margin * 2;
+                const contentH = pageH - margin * 2;
 
-                let heightLeft = imgH;
-                let position = 0;
-                pdf.addImage(imgData, 'JPEG', 0, position, imgW, imgH);
-                heightLeft -= pageH;
+                let cursorY = margin;
+                let hasContent = false;
 
-                while (heightLeft > 0) {
-                    position -= pageH;
-                    pdf.addPage();
-                    pdf.addImage(imgData, 'JPEG', 0, position, imgW, imgH);
-                    heightLeft -= pageH;
+                const sliceCanvas = document.createElement('canvas');
+                const sliceCtx = sliceCanvas.getContext('2d');
+
+                // วางรูปหนึ่งชิ้นลง PDF; forceNewPage = บังคับขึ้นหน้าใหม่ (ใช้กับหัวข้อใหม่)
+                const placeImage = (dataUrl, widthMM, heightMM, forceNewPage) => {
+                    if (hasContent && (forceNewPage || cursorY + heightMM > pageH - margin)) {
+                        pdf.addPage();
+                        cursorY = margin;
+                    }
+                    const x = margin + (contentW - widthMM) / 2;
+                    pdf.addImage(dataUrl, 'JPEG', x, cursorY, widthMM, heightMM);
+                    cursorY += heightMM + 3;
+                    hasContent = true;
+                };
+
+                // ตัดรูปหนึ่งช่วง (canvas px) แล้ววางลง PDF
+                const placeSlice = (canvas, top, sliceH, pxPerMM, forceNewPage) => {
+                    sliceCanvas.width = canvas.width;
+                    sliceCanvas.height = Math.max(1, Math.round(sliceH));
+                    sliceCtx.fillStyle = '#ffffff';
+                    sliceCtx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
+                    sliceCtx.drawImage(canvas, 0, top, canvas.width, sliceCanvas.height, 0, 0, canvas.width, sliceCanvas.height);
+                    placeImage(sliceCanvas.toDataURL('image/jpeg', 0.95), contentW, sliceCanvas.height / pxPerMM, forceNewPage);
+                };
+
+                // หัวรายงานวางไว้บนสุดของหน้าแรก
+                const headerCanvas = await html2canvas(pdfHeader, { backgroundColor: '#ffffff', scale, useCORS: true });
+                placeImage(
+                    headerCanvas.toDataURL('image/jpeg', 0.95),
+                    contentW,
+                    (headerCanvas.height / (headerCanvas.width / contentW)),
+                    false
+                );
+
+                // แต่ละหัวข้อขึ้นหน้าใหม่ พยายามให้จบในหน้าเดียว ถ้าไม่พอค่อยตัดที่ขอบการ์ด
+                const sections = Array.from(captureArea.children).filter(el => el !== pdfHeader);
+
+                for (let si = 0; si < sections.length; si++) {
+                    const sec = sections[si];
+                    if (!sec.offsetHeight) continue;
+
+                    const secRect = sec.getBoundingClientRect();
+                    const cards = Array.from(sec.querySelectorAll(
+                        '#br-factory-sales-grid > div, #br-factory-nps-grid > div, #br-quality-grid > div'
+                    ));
+                    const blocks = cards.map(el => {
+                        const r = el.getBoundingClientRect();
+                        return { top: (r.top - secRect.top) * scale, bottom: (r.bottom - secRect.top) * scale };
+                    }).sort((a, b) => a.top - b.top);
+
+                    const canvas = await html2canvas(sec, { backgroundColor: '#ffffff', scale, useCORS: true });
+                    const pxPerMM = canvas.width / contentW;
+                    const fullH = canvas.height / pxPerMM;
+
+                    // หัวข้อนี้จบในหน้าเดียวได้ → วางทั้งก้อน
+                    if (fullH <= contentH) {
+                        placeImage(canvas.toDataURL('image/jpeg', 0.95), contentW, fullH, si > 0);
+                        continue;
+                    }
+
+                    // สูงเกินนิดเดียว → ย่อให้พอดีหนึ่งหน้า เพื่อไม่ต้องแยกหน้า
+                    if (fullH <= contentH * 1.18) {
+                        const k = contentH / fullH;
+                        placeImage(canvas.toDataURL('image/jpeg', 0.95), contentW * k, contentH, true);
+                        continue;
+                    }
+
+                    // สูงเกินจริง → ตัดที่ขอบการ์ด เฉพาะการ์ดที่ล้นถึงจะไปหน้าถัดไป
+                    const pageContentPx = contentH * pxPerMM;
+                    let top = 0;
+                    while (top < canvas.height - 1) {
+                        let bottom = Math.min(top + pageContentPx, canvas.height);
+                        if (bottom < canvas.height) {
+                            let cut = bottom;
+                            blocks.forEach(b => {
+                                if (b.top > top + 1 && b.top < bottom - 1 && b.bottom > bottom) {
+                                    cut = Math.min(cut, b.top);
+                                }
+                            });
+                            if (cut > top + pageContentPx * 0.2) bottom = cut;
+                        }
+                        placeSlice(canvas, top, bottom - top, pxPerMM, true);
+                        top = bottom;
+                    }
                 }
 
                 const safeCompany = String(company).replace(/[^\w\u0E00-\u0E7F]+/g, '_') || 'report';
@@ -3993,6 +4334,617 @@
                 'ไม่มีโรงงานที่ NPS รวมผ่านเกณฑ์ในช่วงที่เลือก');
         }
 
+        // ============================================================
+        // ===================  TYPE & GRADE TAB  =====================
+        // ============================================================
+
+        const TG_TYPE_COLORS = { 'S': '#34d399', 'N+X': '#2563eb', 'CPAC': '#0ea5e9' };
+        const TG_GRADE_COLORS = { 'A': '#2563eb', 'B': '#06b6d4', 'C': '#f59e0b', 'D': '#ef4444' };
+
+        // แท็บ Type & เกรด แสดงผลเป็นหน่วย "พัน ลบ.ม." (ยอดดิบหาร 1,000)
+        const TG_UNIT_LABEL = 'พัน ลบ.ม.';
+        // แปลงยอดดิบ (ลบ.ม.) เป็นพัน ลบ.ม. ปัดทศนิยม 1 ตำแหน่ง
+        function toThousand(v) { return Math.round(((v || 0) / 1000) * 10) / 10; }
+        // จัดรูปแบบตัวเลขที่แปลงเป็นพันแล้ว
+        function fmtK1(n) {
+            return (n || 0).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+        }
+        // แปลงยอดดิบแล้วจัดรูปแบบในขั้นตอนเดียว
+        function fmtThousand(v) { return fmtK1(toThousand(v)); }
+
+        function populateTgEnterpriseDropdown() {
+            const sel = document.getElementById('tg-filter-enterprise');
+            if (!sel) return;
+            const current = sel.value;
+            const ents = (globalData.enterprises || []).slice().sort();
+            sel.innerHTML = '<option value="ALL">ทั้งหมด (All Enterprises)</option>';
+            ents.forEach(e => {
+                const opt = document.createElement('option');
+                opt.value = e;
+                opt.textContent = e;
+                sel.appendChild(opt);
+            });
+            if (current && Array.from(sel.options).some(o => o.value === current)) sel.value = current;
+        }
+
+        function setTgDefaultEndMonth() {
+            if (tgEndMonthUserSet) return;
+            const sel = document.getElementById('tg-filter-end-month');
+            if (sel) sel.value = getMaxMonthWithData();
+        }
+
+        function getTgMonthRange() {
+            let s = parseInt(document.getElementById('tg-filter-start-month')?.value || '1', 10);
+            let e = parseInt(document.getElementById('tg-filter-end-month')?.value || '12', 10);
+            if (s > e) { const t = s; s = e; e = t; }
+            return { start: s, end: e };
+        }
+
+        function updateTypeGradeTab() {
+            const emptyHint = document.getElementById('tg-empty-hint');
+            const content = document.getElementById('tg-content');
+            if (!emptyHint || !content) return;
+
+            const { start, end } = getTgMonthRange();
+            const selectedEnt = document.getElementById('tg-filter-enterprise')?.value || 'ALL';
+
+            // ใช้เฉพาะโรงงานที่อยู่ใน sheet 2026 และไม่ถูกยกเว้น (สอดคล้องกับตารางยอดผลิตรายโรงงาน)
+            const f2026 = globalData.factories2026;
+            const excluded = globalData.excludedFactories;
+            const records = (globalData.factory || []).filter(r => {
+                // ใช้เฉพาะ record ที่มาจาก sheet 2026 เท่านั้น
+                // (record จาก 2025 / PLAN2026 ไม่มีคอลัมน์ Grade จะกลายเป็นหมวดขยะในกราฟ)
+                if (r.prod2026 === undefined || r.prod2026 === null) return false;
+                if (!r.month || r.month < start || r.month > end) return false;
+                if (selectedEnt !== 'ALL' && r.enterprise !== selectedEnt) return false;
+                const code = (r.fcplno || '').trim();
+                const fname = r.factoryName || '';
+                if (f2026 && f2026.size > 0 && !((code && f2026.has(code)) || f2026.has(fname))) return false;
+                if (excluded && ((code && excluded.has(code)) || excluded.has(fname))) return false;
+                return true;
+            });
+
+            const totalProd = records.reduce((sum, r) => sum + (r.prod2026 || 0), 0);
+            if (records.length === 0 || totalProd <= 0) {
+                emptyHint.classList.remove('hidden');
+                content.classList.add('hidden');
+                return;
+            }
+            emptyHint.classList.add('hidden');
+            content.classList.remove('hidden');
+
+            // แสดงเฉพาะเดือนที่มียอดผลิตจริง
+            const monthsWithData = records.filter(r => (r.prod2026 || 0) > 0).map(r => r.month);
+            const effStart = monthsWithData.length ? Math.min(...monthsWithData) : start;
+            const effEnd = monthsWithData.length ? Math.max(...monthsWithData) : end;
+
+            // ข้อมูลแผน (PLAN2026) ใช้เงื่อนไขกรองชุดเดียวกับยอดจริง เพื่อให้เทียบกันได้ตรงๆ
+            const planRecords = (globalData.factory || []).filter(r => {
+                if (r.plan2026 === undefined || r.plan2026 === null) return false;
+                if (!r.month || r.month < effStart || r.month > effEnd) return false;
+                if (selectedEnt !== 'ALL' && r.enterprise !== selectedEnt) return false;
+                const code = (r.fcplno || '').trim();
+                const fname = r.factoryName || '';
+                if (f2026 && f2026.size > 0 && !((code && f2026.has(code)) || f2026.has(fname))) return false;
+                if (excluded && ((code && excluded.has(code)) || excluded.has(fname))) return false;
+                return true;
+            });
+
+            renderTgKpis(records, totalProd);
+            renderTgTypeCharts(records, effStart, effEnd);
+            renderTgPlanBoxes(records, planRecords, effStart, effEnd, selectedEnt);
+            renderTgGradeCharts(records, effStart, effEnd);
+            renderTgSummaryTable(records, effStart, effEnd);
+        }
+
+        function renderTgKpis(records, totalProd) {
+            let sVol = 0, nxVol = 0;
+            const factories = new Set();
+            records.forEach(r => {
+                const v = r.prod2026 || 0;
+                const label = normalizeTypeLabel(r.type);
+                if (label === 'S') sVol += v;
+                else if (label === 'N+X') nxVol += v;
+                if (v > 0) factories.add(r.fcplno || r.factoryName);
+            });
+
+            const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+            setText('tg-kpi-total', fmtThousand(totalProd));
+            setText('tg-kpi-s', fmtThousand(sVol));
+            setText('tg-kpi-nx', fmtThousand(nxVol));
+            setText('tg-kpi-s-pct', totalProd > 0 ? `(${((sVol / totalProd) * 100).toFixed(1)}%)` : '(0%)');
+            setText('tg-kpi-nx-pct', totalProd > 0 ? `(${((nxVol / totalProd) * 100).toFixed(1)}%)` : '(0%)');
+            setText('tg-kpi-factories', factories.size.toLocaleString('en-US'));
+        }
+
+        // รวมยอดผลิตรายเดือน แยกตาม key ที่กำหนด (Type หรือ Grade)
+        function aggregateByMonth(records, keyFn, start, end) {
+            const byKey = {};
+            records.forEach(r => {
+                const k = keyFn(r);
+                if (!byKey[k]) byKey[k] = {};
+                byKey[k][r.month] = (byKey[k][r.month] || 0) + (r.prod2026 || 0);
+            });
+            const labels = [];
+            for (let m = start; m <= end; m++) labels.push(monthNames[m - 1]);
+            return { byKey, labels };
+        }
+
+        function buildTgDatasets(byKey, keys, colors, start, end) {
+            return keys.map(k => {
+                const data = [];
+                for (let m = start; m <= end; m++) data.push(toThousand((byKey[k] && byKey[k][m]) || 0));
+                return { label: k, data, backgroundColor: colors[k] || '#94a3b8', borderRadius: 4 };
+            });
+        }
+
+        // แปลงชุดข้อมูลเป็นสัดส่วน % ของแต่ละเดือน (รวมทุก series ในเดือนนั้น = 100%)
+        function toPercentDatasets(datasets) {
+            const n = datasets[0] ? datasets[0].data.length : 0;
+            const totals = [];
+            for (let i = 0; i < n; i++) {
+                totals.push(datasets.reduce((s, d) => s + (d.data[i] || 0), 0));
+            }
+            return datasets.map(d => ({
+                ...d,
+                data: d.data.map((v, i) => totals[i] > 0 ? Math.round((v / totals[i]) * 1000) / 10 : 0)
+            }));
+        }
+
+        // ความสูง (px) ของแท่งย่อยหนึ่งชั้นในกราฟซ้อน ใช้ตัดสินใจว่าจะวางตัวเลขยังไง
+        function tgSegmentHeight(ctx) {
+            const meta = ctx.chart.getDatasetMeta(ctx.datasetIndex);
+            const el = meta && meta.data ? meta.data[ctx.dataIndex] : null;
+            if (!el) return null;
+            const base = (el.base === undefined || el.base === null) ? el.y : el.base;
+            return Math.abs(base - el.y);
+        }
+
+        function renderTgStackedChart(canvasId, instanceSetter, oldInstance, labels, datasets, isPercent, registryKey, title) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return null;
+            if (oldInstance) oldInstance.destroy();
+
+            const options = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    datalabels: {
+                        anchor: 'center',
+                        align: 'center',
+                        clamp: true,
+                        // แท่งย่อยที่สูงพอวางตัวเลขแนวตั้ง (หมุน 270) ถ้าเตี้ยให้วางแนวนอนแทน
+                        // กราฟ % วางแนวนอนตลอด เพื่อไม่ให้ตัวเลขซ้อนกัน
+                        rotation: (ctx) => {
+                            if (isPercent) return 0;
+                            return tgSegmentHeight(ctx) >= 44 ? 270 : 0;
+                        },
+                        color: '#ffffff',
+                        font: (ctx) => {
+                            if (isPercent) return { weight: 'bold', size: 11 };
+                            return { weight: 'bold', size: tgSegmentHeight(ctx) >= 44 ? 13 : 10 };
+                        },
+                        // ซ่อนตัวเลขเฉพาะแท่งที่เตี้ยจนใส่ข้อความไม่ลงจริงๆ
+                        display: (ctx) => {
+                            const v = ctx.dataset.data[ctx.dataIndex];
+                            if (!v) return false;
+                            const segH = tgSegmentHeight(ctx);
+                            if (segH === null) return true;
+                            return isPercent ? segH >= 14 : segH >= 12;
+                        },
+                        formatter: (v) => {
+                            if (!v) return '';
+                            return isPercent ? `${v}%` : fmtK1(v);
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => isPercent
+                                ? `${ctx.dataset.label}: ${ctx.parsed.y}%`
+                                : `${ctx.dataset.label}: ${fmtK1(ctx.parsed.y)} ${TG_UNIT_LABEL}`
+                        }
+                    }
+                },
+                scales: {
+                    x: { stacked: true, grid: { display: false } },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        max: isPercent ? 100 : undefined,
+                        grid: { color: '#f1f5f9' },
+                        title: { display: true, text: isPercent ? 'สัดส่วน (%)' : TG_UNIT_LABEL }
+                    }
+                }
+            };
+
+            const chart = new Chart(canvas.getContext('2d'), {
+                type: 'bar',
+                data: { labels, datasets },
+                options
+            });
+            brChartRegistry[registryKey] = { title, type: 'bar', labels, datasets, options };
+            return chart;
+        }
+
+        // กราฟเส้น: ใช้กับ "ยอดผลิตรวมทุกเกรด รายเดือน" เพื่อดูแนวโน้มของแต่ละเกรด
+        function renderTgLineChart(canvasId, oldInstance, labels, datasets, registryKey, title) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return null;
+            if (oldInstance) oldInstance.destroy();
+
+            const lineDatasets = datasets.map(d => {
+                const color = d.backgroundColor || '#94a3b8';
+                return {
+                    label: d.label,
+                    data: d.data,
+                    borderColor: color,
+                    backgroundColor: color,
+                    pointBackgroundColor: color,
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    borderWidth: 3,
+                    tension: 0.35,
+                    fill: false
+                };
+            });
+
+            const options = {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { position: 'top' },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        offset: 4,
+                        color: (ctx) => ctx.dataset.borderColor,
+                        font: { weight: 'bold', size: 10 },
+                        formatter: (v) => v ? fmtK1(v) : ''
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `${ctx.dataset.label}: ${fmtK1(ctx.parsed.y)} ${TG_UNIT_LABEL}`
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f1f5f9' },
+                        title: { display: true, text: TG_UNIT_LABEL }
+                    }
+                }
+            };
+
+            const chart = new Chart(canvas.getContext('2d'), {
+                type: 'line',
+                data: { labels, datasets: lineDatasets },
+                options
+            });
+            brChartRegistry[registryKey] = { title, type: 'line', labels, datasets: lineDatasets, options };
+            return chart;
+        }
+
+        function renderTgTypeCharts(records, start, end) {
+            const { byKey, labels } = aggregateByMonth(records, r => normalizeTypeLabel(r.type), start, end);
+            // ลำดับการซ้อนแท่ง (ล่างขึ้นบน): CPAC → N+X → S แล้วตามด้วย type อื่นที่อาจโผล่มา
+            const keys = ['N+X', 'S'].filter(k => byKey[k])
+                .concat(Object.keys(byKey).filter(k => k !== 'S' && k !== 'N+X').sort());
+
+            const datasets = buildTgDatasets(byKey, keys, TG_TYPE_COLORS, start, end);
+
+            // เติมยอดผลิตของ CPAC (sheet CPAC2026) ไว้เป็นชั้นล่างสุดของแท่ง
+            const selectedEnt = document.getElementById('tg-filter-enterprise')?.value || 'ALL';
+            const cpacSeries = getCpacMonthlySeries(selectedEnt, start, end);
+            const typeDatasets = datasets.slice();
+            if (cpacSeries.some(v => v > 0)) {
+                typeDatasets.unshift({
+                    label: 'CPAC',
+                    data: cpacSeries,
+                    backgroundColor: TG_TYPE_COLORS['CPAC'],
+                    borderRadius: 4
+                });
+            }
+
+            tgTypeChartInstance = renderTgStackedChart('tgTypeChart', null, tgTypeChartInstance,
+                labels, typeDatasets, false, 'tg-type', 'ยอดผลิตแยก Type รายเดือน (รวมยอด CPAC)');
+
+            // กราฟสัดส่วน (%) คิดจากยอดรวมทั้งหมด S + N+X + CPAC ในเดือนนั้น = 100%
+            tgTypePctChartInstance = renderTgStackedChart('tgTypePctChart', null, tgTypePctChartInstance,
+                labels, toPercentDatasets(typeDatasets), true, 'tg-type-pct', 'สัดส่วน Type รายเดือน (%) รวม CPAC');
+        }
+
+        // ยอดผลิต CPAC รายเดือนตามกิจการที่เลือก (ALL = รวมทุกกิจการ) — คืนค่าเป็น "พัน ลบ.ม."
+        function getCpacMonthlySeries(selectedEnt, start, end, source) {
+            return getCpacMonthlyRaw(selectedEnt, start, end, source).map(toThousand);
+        }
+
+        // ยอดดิบ (ลบ.ม.) รายเดือนของ CPAC ใช้คำนวณ %variance
+        function getCpacMonthlyRaw(selectedEnt, start, end, source) {
+            const rows = source || cpacMonthly || [];
+            const byMonth = {};
+            rows.forEach(r => {
+                if (selectedEnt !== 'ALL' && String(r.enterprise).trim() !== String(selectedEnt).trim()) return;
+                byMonth[r.month] = (byMonth[r.month] || 0) + (r.volume || 0);
+            });
+            const out = [];
+            for (let m = start; m <= end; m++) out.push(byMonth[m] || 0);
+            return out;
+        }
+
+        function renderTgGradeCharts(records, start, end) {
+            const gradeOf = (r) => {
+                const g = String(r.grade || '').trim().toUpperCase();
+                return g || 'ไม่ระบุ';
+            };
+            const { byKey, labels } = aggregateByMonth(records, gradeOf, start, end);
+            const keys = ['A', 'B', 'C', 'D'].filter(k => byKey[k])
+                .concat(Object.keys(byKey).filter(k => !['A', 'B', 'C', 'D'].includes(k)).sort());
+
+            // --- กราฟภาพรวม: รวมทุกเกรดซ้อนกัน + สัดส่วน % ---
+            const overviewDatasets = buildTgDatasets(byKey, keys, TG_GRADE_COLORS, start, end);
+            tgGradeChartInstance = renderTgLineChart('tgGradeChart', tgGradeChartInstance,
+                labels, overviewDatasets, 'tg-grade', 'ยอดผลิตรวมทุกเกรด รายเดือน');
+            tgGradePctChartInstance = renderTgStackedChart('tgGradePctChart', null, tgGradePctChartInstance,
+                labels, toPercentDatasets(overviewDatasets), true, 'tg-grade-pct', 'สัดส่วนเกรด รายเดือน (%)');
+
+            const grid = document.getElementById('tg-grade-grid');
+            const countLabel = document.getElementById('tg-grade-count');
+            if (!grid) return;
+
+            // ล้างกราฟเดิมก่อนวาดใหม่ กัน memory leak และ canvas ค้าง
+            tgGradeChartInstances.forEach(c => c.destroy());
+            tgGradeChartInstances = [];
+            grid.innerHTML = '';
+
+            // ยอดรวมทุกเกรดในแต่ละเดือน ใช้คำนวณสัดส่วน % ของเกรดนั้นๆ
+            const monthTotals = {};
+            for (let m = start; m <= end; m++) {
+                monthTotals[m] = keys.reduce((sum, k) => sum + ((byKey[k] && byKey[k][m]) || 0), 0);
+            }
+            const grandTotal = Object.values(monthTotals).reduce((a, b) => a + b, 0);
+
+            if (keys.length === 0) {
+                grid.innerHTML = '<p class="text-sm text-slate-400 col-span-2 text-center py-10">ไม่พบข้อมูลเกรดในช่วงที่เลือก</p>';
+                if (countLabel) countLabel.textContent = 'ไม่พบข้อมูลเกรด';
+                return;
+            }
+            if (countLabel) countLabel.textContent = `พบ ${keys.length} เกรด: ${keys.join(' / ')}`;
+
+            keys.forEach((k, idx) => {
+                const canvasId = `tg-grade-chart-${idx}`;
+                const chartKey = `tg-grade-${k}`;
+                const color = TG_GRADE_COLORS[k] || '#94a3b8';
+
+                const data = [];
+                let gradeTotal = 0;
+                for (let m = start; m <= end; m++) {
+                    const raw = (byKey[k] && byKey[k][m]) || 0;
+                    gradeTotal += raw;
+                    data.push(toThousand(raw));
+                }
+                const sharePct = grandTotal > 0 ? (gradeTotal / grandTotal) * 100 : 0;
+
+                const card = document.createElement('div');
+                card.className = 'bg-slate-50 rounded-xl border border-slate-200 p-4';
+                card.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                            <span class="inline-block w-3 h-3 rounded-sm" style="background:${color}"></span>
+                            เกรด ${k}
+                        </h4>
+                        <button onclick="expandBRChart('${chartKey}')" class="w-6 h-6 flex-shrink-0 flex items-center justify-center rounded-md bg-white hover:bg-slate-200 text-slate-500 border border-slate-200 transition" title="ขยายกราฟ">
+                            <i class="fa-solid fa-expand text-[10px]"></i>
+                        </button>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-3">
+                        รวม <b class="text-slate-800">${fmtThousand(gradeTotal)}</b> ${TG_UNIT_LABEL}
+                        &bull; สัดส่วน <b class="text-slate-800">${sharePct.toFixed(1)}%</b>
+                    </p>
+                    <div style="height: 260px;"><canvas id="${canvasId}"></canvas></div>
+                `;
+                grid.appendChild(card);
+
+                // เก็บสัดส่วน % ของเกรดนี้เทียบยอดรวมทั้งเดือน ไว้โชว์ใน tooltip
+                const pctOfMonth = [];
+                for (let m = start; m <= end; m++) {
+                    const v = (byKey[k] && byKey[k][m]) || 0;
+                    pctOfMonth.push(monthTotals[m] > 0 ? (v / monthTotals[m]) * 100 : 0);
+                }
+
+                const datasets = [{ label: `เกรด ${k}`, data, backgroundColor: color, borderRadius: 4 }];
+                const options = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            anchor: 'center',
+                            align: 'center',
+                            rotation: 270,
+                            color: '#ffffff',
+                            font: { weight: 'bold', size: 13 },
+                            formatter: (v) => v > 0 ? fmtK1(v) : ''
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => {
+                                    const pct = pctOfMonth[ctx.dataIndex] || 0;
+                                    return `${fmtK1(ctx.parsed.y)} ${TG_UNIT_LABEL} (${pct.toFixed(1)}% ของเดือน)`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } }
+                    }
+                };
+
+                const chart = new Chart(document.getElementById(canvasId).getContext('2d'), {
+                    type: 'bar', data: { labels, datasets }, options
+                });
+                tgGradeChartInstances.push(chart);
+                brChartRegistry[chartKey] = { title: `ยอดผลิตรายเดือน — เกรด ${k}`, type: 'bar', labels, datasets, options };
+            });
+        }
+
+        // ============ กล่อง %Variance (จริง vs แผน) ============
+
+        // การ์ด %Variance สไตล์เดียวกับ KPI แถวบน
+        // actualRaw / planRaw เป็นยอดดิบหน่วย ลบ.ม. (แสดงผลเป็นพัน ลบ.ม.)
+        function buildTgVarianceCard(title, iconClass, iconTint, actualRaw, planRaw) {
+            const actualTotal = actualRaw.reduce((a, b) => a + (b || 0), 0);
+            const planTotal = planRaw.reduce((a, b) => a + (b || 0), 0);
+            const hasPlan = planTotal > 0;
+            const variance = hasPlan ? ((actualTotal - planTotal) / planTotal) * 100 : null;
+
+            const valueCls = variance === null ? 'text-slate-400'
+                : (variance >= 0 ? 'text-emerald-600' : 'text-rose-600');
+            const valueTxt = variance === null
+                ? 'ไม่มีแผน'
+                : `${variance >= 0 ? '+' : ''}${variance.toFixed(1)}%`;
+
+            return `
+                <div class="absolute right-3 top-3 ${iconTint} text-4xl pointer-events-none"><i class="fa-solid ${iconClass}"></i></div>
+                <p class="text-xs font-semibold text-slate-400 tracking-wider uppercase">${title}</p>
+                <div class="flex items-baseline gap-2 mt-2">
+                    <h3 class="text-2xl font-bold ${valueCls}">${valueTxt}</h3>
+                    <span class="text-sm font-semibold text-slate-400">%Variance</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-1">
+                    จริง <b class="text-slate-700">${fmtThousand(actualTotal)}</b>
+                    &bull; แผน <b class="text-slate-700">${fmtThousand(planTotal)}</b> พัน ลบ.ม.
+                </p>`;
+        }
+
+        // สร้างอนุกรมยอดรายเดือน (ลบ.ม.) จาก records ตามฟิลด์และเงื่อนไขที่กำหนด
+        function sumMonthlyRaw(records, valueKey, predicate, start, end) {
+            const byMonth = {};
+            records.forEach(r => {
+                if (predicate && !predicate(r)) return;
+                byMonth[r.month] = (byMonth[r.month] || 0) + (r[valueKey] || 0);
+            });
+            const out = [];
+            for (let m = start; m <= end; m++) out.push(byMonth[m] || 0);
+            return out;
+        }
+
+        function renderTgPlanBoxes(records, planRecords, start, end, selectedEnt) {
+            const isS = (r) => normalizeTypeLabel(r.type) === 'S';
+            const isNX = (r) => normalizeTypeLabel(r.type) === 'N+X';
+
+            const setBox = (id, html) => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = html;
+            };
+
+            setBox('tg-plan-cpac-box', buildTgVarianceCard(
+                'CPAC เทียบแผน', 'fa-bullseye', 'text-sky-100',
+                getCpacMonthlyRaw(selectedEnt, start, end, cpacMonthly),
+                getCpacMonthlyRaw(selectedEnt, start, end, cpacPlanMonthly)
+            ));
+
+            setBox('tg-plan-nx-box', buildTgVarianceCard(
+                'FC Type N+X เทียบแผน', 'fa-network-wired', 'text-blue-100',
+                sumMonthlyRaw(records, 'prod2026', isNX, start, end),
+                sumMonthlyRaw(planRecords, 'plan2026', isNX, start, end)
+            ));
+
+            setBox('tg-plan-s-box', buildTgVarianceCard(
+                'FC Type S เทียบแผน', 'fa-building', 'text-emerald-100',
+                sumMonthlyRaw(records, 'prod2026', isS, start, end),
+                sumMonthlyRaw(planRecords, 'plan2026', isS, start, end)
+            ));
+        }
+
+        function renderTgSummaryTable(records, start, end) {
+            const wrap = document.getElementById('tg-summary-table');
+            if (!wrap) return;
+
+            const buildSection = (title, keyFn, keyOrder, colors) => {
+                const byKey = {};
+                records.forEach(r => {
+                    const k = keyFn(r);
+                    if (!byKey[k]) byKey[k] = {};
+                    byKey[k][r.month] = (byKey[k][r.month] || 0) + (r.prod2026 || 0);
+                });
+                const keys = keyOrder.filter(k => byKey[k])
+                    .concat(Object.keys(byKey).filter(k => !keyOrder.includes(k)).sort());
+
+                const monthTotals = {};
+                for (let m = start; m <= end; m++) {
+                    monthTotals[m] = keys.reduce((s, k) => s + ((byKey[k] && byKey[k][m]) || 0), 0);
+                }
+                const grandTotal = Object.values(monthTotals).reduce((s, v) => s + v, 0);
+
+                const rows = keys.map(k => {
+                    let cells = '';
+                    let rowTotal = 0;
+                    for (let m = start; m <= end; m++) {
+                        const v = (byKey[k] && byKey[k][m]) || 0;
+                        rowTotal += v;
+                        cells += `<td class="py-2 px-3 text-right text-slate-700">${fmtThousand(v)}</td>`;
+                    }
+                    const pct = grandTotal > 0 ? (rowTotal / grandTotal) * 100 : 0;
+                    return `
+                        <tr class="hover:bg-slate-50/80 transition border-b border-slate-100">
+                            <td class="py-2 px-3 font-semibold text-slate-900 whitespace-nowrap">
+                                <span class="inline-block w-2.5 h-2.5 rounded-sm mr-2" style="background:${colors[k] || '#94a3b8'}"></span>${k}
+                            </td>
+                            ${cells}
+                            <td class="py-2 px-3 text-right font-bold text-slate-900 bg-slate-50">${fmtThousand(rowTotal)}</td>
+                            <td class="py-2 px-3 text-right font-semibold text-slate-600 bg-slate-50">${pct.toFixed(1)}%</td>
+                        </tr>`;
+                }).join('');
+
+                let totalCells = '';
+                for (let m = start; m <= end; m++) {
+                    totalCells += `<td class="py-2 px-3 text-right font-bold text-slate-900">${fmtThousand(monthTotals[m])}</td>`;
+                }
+
+                let monthHeaders = '';
+                for (let m = start; m <= end; m++) {
+                    monthHeaders += `<th class="py-2.5 px-3 font-semibold text-right whitespace-nowrap">${monthNamesShortTH[m - 1]}</th>`;
+                }
+
+                return `
+                    <div class="mb-6 last:mb-0">
+                        <h4 class="text-sm font-bold text-slate-700 mb-2">${title}</h4>
+                        <div class="overflow-x-auto custom-scrollbar rounded-xl border border-slate-200">
+                            <table class="min-w-full text-sm">
+                                <thead>
+                                    <tr class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wider border-b border-slate-200">
+                                        <th class="py-2.5 px-3 font-semibold text-left">รายการ</th>
+                                        ${monthHeaders}
+                                        <th class="py-2.5 px-3 font-semibold text-right bg-slate-200">รวม</th>
+                                        <th class="py-2.5 px-3 font-semibold text-right bg-slate-200">สัดส่วน</th>
+                                    </tr>
+                                </thead>
+                                <tbody>${rows}</tbody>
+                                <tfoot>
+                                    <tr class="bg-slate-50 border-t-2 border-slate-300">
+                                        <td class="py-2 px-3 font-bold text-slate-900">รวมทั้งหมด</td>
+                                        ${totalCells}
+                                        <td class="py-2 px-3 text-right font-bold text-slate-900">${fmtThousand(grandTotal)}</td>
+                                        <td class="py-2 px-3 text-right font-bold text-slate-600">100.0%</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>`;
+            };
+
+            wrap.innerHTML =
+                buildSection('แยกตาม Type', r => normalizeTypeLabel(r.type), ['S', 'N+X'], TG_TYPE_COLORS) +
+                buildSection('แยกตามเกรด', r => (String(r.grade || '').trim().toUpperCase() || 'ไม่ระบุ'), ['A', 'B', 'C', 'D'], TG_GRADE_COLORS);
+        }
+
         function initApp() {
             // โหลดไฟล์ Excel อัตโนมัติจาก GitHub Repository (ชื่อ DashboardSaleAI.xlsx เป็นอันดับแรก)
             loadDefaultExcelFromRepo();
@@ -4066,6 +5018,21 @@
                 npsEndMonthUserSet = false;
                 setNpsDefaultEndMonth();
                 updateNpsTab();
+            });
+
+            // ----- Type & Grade tab filters -----
+            document.getElementById('tg-filter-enterprise').addEventListener('change', updateTypeGradeTab);
+            document.getElementById('tg-filter-start-month').addEventListener('change', updateTypeGradeTab);
+            document.getElementById('tg-filter-end-month').addEventListener('change', () => {
+                tgEndMonthUserSet = true;
+                updateTypeGradeTab();
+            });
+            document.getElementById('tg-btn-reset').addEventListener('click', () => {
+                document.getElementById('tg-filter-enterprise').value = 'ALL';
+                document.getElementById('tg-filter-start-month').value = '1';
+                tgEndMonthUserSet = false;
+                setTgDefaultEndMonth();
+                updateTypeGradeTab();
             });
         }
 
