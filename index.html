@@ -874,8 +874,11 @@
                                 <i class="fa-solid fa-expand text-xs"></i>
                             </button>
                         </div>
-                        <p class="text-xs text-slate-400 mb-4">หน่วย: พัน ลบ.ม. &bull; ซ้อนจากล่างขึ้นบน: CPAC &rarr; N+X &rarr; S<br>S = Stand Alone &bull; N+X = Network &bull; CPAC = ยอดผลิต CPAC (sheet CPAC2026)</p>
-                        <div style="height: 340px;"><canvas id="tgTypeChart"></canvas></div>
+                        <p class="text-xs text-slate-400 mb-4">หน่วย: พัน ลบ.ม. &bull; ซ้อนจากล่างขึ้นบน: CPAC &rarr; N+X &rarr; S<br>S = Stand Alone &bull; N+X = Network &bull; CPAC = ยอดผลิต CPAC (sheet CPAC2026)<br>แท่งขวา = ยอดสะสมทั้งช่วงที่เลือก</p>
+                        <div class="flex gap-3" style="height: 340px;">
+                            <div class="flex-1 min-w-0"><canvas id="tgTypeChart"></canvas></div>
+                            <div class="flex-shrink-0 border-l border-slate-100 pl-3" style="width: 152px;"><canvas id="tgTypeCumChart"></canvas></div>
+                        </div>
                     </div>
 
                     <div class="bg-white rounded-2xl border border-slate-100 card-shadow p-6">
@@ -888,8 +891,11 @@
                                 <i class="fa-solid fa-expand text-xs"></i>
                             </button>
                         </div>
-                        <p class="text-xs text-slate-400 mb-4">สัดส่วนยอดผลิตของแต่ละ Type ในเดือนนั้น (S + N+X + CPAC = 100%)</p>
-                        <div style="height: 340px;"><canvas id="tgTypePctChart"></canvas></div>
+                        <p class="text-xs text-slate-400 mb-4">สัดส่วนยอดผลิตของแต่ละ Type ในเดือนนั้น (S + N+X + CPAC = 100%)<br>แท่งขวา = สัดส่วนของยอดสะสมทั้งช่วง</p>
+                        <div class="flex gap-3" style="height: 340px;">
+                            <div class="flex-1 min-w-0"><canvas id="tgTypePctChart"></canvas></div>
+                            <div class="flex-shrink-0 border-l border-slate-100 pl-3" style="width: 152px;"><canvas id="tgTypePctCumChart"></canvas></div>
+                        </div>
                     </div>
                 </div>
 
@@ -905,8 +911,11 @@
                                 <i class="fa-solid fa-expand text-xs"></i>
                             </button>
                         </div>
-                        <p class="text-xs text-slate-400 mb-4">แนวโน้มยอดผลิตของเกรด A / B / C / D ในแต่ละเดือน (หน่วย: พัน ลบ.ม.)</p>
-                        <div style="height: 360px;"><canvas id="tgGradeChart"></canvas></div>
+                        <p class="text-xs text-slate-400 mb-4">แนวโน้มยอดผลิตของเกรด A / B / C / D ในแต่ละเดือน (หน่วย: พัน ลบ.ม.)<br>จุดฝั่งขวา = ยอดสะสมทั้งช่วงที่เลือก</p>
+                        <div class="flex gap-3" style="height: 360px;">
+                            <div class="flex-1 min-w-0"><canvas id="tgGradeChart"></canvas></div>
+                            <div class="flex-shrink-0 border-l border-slate-100 pl-3" style="width: 152px;"><canvas id="tgGradeCumChart"></canvas></div>
+                        </div>
                     </div>
 
                     <div class="bg-white rounded-2xl border border-slate-100 card-shadow p-6">
@@ -919,8 +928,11 @@
                                 <i class="fa-solid fa-expand text-xs"></i>
                             </button>
                         </div>
-                        <p class="text-xs text-slate-400 mb-4">สัดส่วนยอดผลิตของแต่ละเกรดในเดือนนั้น</p>
-                        <div style="height: 360px;"><canvas id="tgGradePctChart"></canvas></div>
+                        <p class="text-xs text-slate-400 mb-4">สัดส่วนยอดผลิตของแต่ละเกรดในเดือนนั้น<br>แท่งขวา = สัดส่วนของยอดสะสมทั้งช่วง</p>
+                        <div class="flex gap-3" style="height: 360px;">
+                            <div class="flex-1 min-w-0"><canvas id="tgGradePctChart"></canvas></div>
+                            <div class="flex-shrink-0 border-l border-slate-100 pl-3" style="width: 152px;"><canvas id="tgGradePctCumChart"></canvas></div>
+                        </div>
                     </div>
                 </div>
 
@@ -4533,6 +4545,172 @@
 
         // forceRotation: บังคับองศาของตัวเลขทุกตัวในกราฟให้เท่ากัน (270 = หัวตัวอักษรเอียงไปทางซ้าย)
         //                ถ้าไม่ส่งมา จะสลับแนวตั้ง/แนวนอนอัตโนมัติตามความสูงของแท่งย่อย
+        // กราฟ "สะสม" แท่งเดียว วางข้างกราฟรายเดือน — รวมทุกเดือนในช่วงที่เลือกเป็นแท่งเดียว
+        // datasets ที่ส่งเข้ามาเป็นชุดเดียวกับกราฟรายเดือน (หน่วยพัน ลบ.ม.)
+        let tgTypeCumInstance = null;
+        let tgTypePctCumInstance = null;
+        let tgGradeCumInstance = null;
+        let tgGradePctCumInstance = null;
+        let tgGradeCumInstances = [];
+
+        // asLine = true → แสดงเป็นจุดบนกราฟเส้น (ใช้คู่กับกราฟรายเดือนที่เป็นเส้น)
+        // อ่านความกว้างของแท่งในกราฟรายเดือน เพื่อให้แท่งสะสมกว้างเท่ากันเป๊ะ
+        function tgBarWidthOf(chart) {
+            try {
+                const meta = chart && chart.getDatasetMeta(0);
+                const el = meta && meta.data && meta.data[0];
+                const w = el && el.width;
+                return (w && isFinite(w) && w > 2) ? Math.round(w) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // ปรับ padding บน/ล่างของกราฟสะสม ให้พื้นที่วาดกราฟ (แกน Y) เริ่มและจบตรงระดับเดียวกับกราฟรายเดือน
+        // กราฟรายเดือนมี legend ด้านบนและ label เดือนที่ยาวกว่า พื้นที่วาดจึงไม่ตรงกันถ้าไม่ชดเชย
+        function tgSyncCumHeight(mainChart, cumChart) {
+            if (!mainChart || !cumChart) return;
+            for (let pass = 0; pass < 2; pass++) {
+                try {
+                    const ma = mainChart.chartArea;
+                    const ca = cumChart.chartArea;
+                    if (!ma || !ca || ma.bottom <= ma.top) return;
+                    const pad = cumChart.options.layout.padding;
+                    const nextTop = Math.round((pad.top || 0) + (ma.top - ca.top));
+                    const nextBottom = Math.round((pad.bottom || 0) + (ca.bottom - ma.bottom));
+                    if (Math.abs(nextTop - (pad.top || 0)) < 1 && Math.abs(nextBottom - (pad.bottom || 0)) < 1) return;
+                    pad.top = Math.max(0, nextTop);
+                    pad.bottom = Math.max(0, nextBottom);
+                    cumChart.update('none');
+                } catch (e) {
+                    return; // ไม่ critical ปล่อยผ่าน
+                }
+            }
+        }
+
+        function renderTgCumChart(canvasId, oldInstance, datasets, isPercent, forceRotation, asLine, barThickness) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return null;
+            if (oldInstance) oldInstance.destroy();
+
+            const summed = datasets.map(d => ({
+                label: d.label,
+                data: [Math.round(d.data.reduce((a, b) => a + (b || 0), 0) * 10) / 10],
+                backgroundColor: d.backgroundColor || d.borderColor,
+                borderRadius: 4,
+                barThickness: barThickness || undefined,
+                maxBarThickness: barThickness || 40
+            }));
+
+            if (asLine) {
+                const pointDatasets = summed.map(d => ({
+                    label: d.label,
+                    data: d.data,
+                    borderColor: d.backgroundColor,
+                    backgroundColor: d.backgroundColor,
+                    pointBackgroundColor: d.backgroundColor,
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    showLine: false
+                }));
+
+                return new Chart(canvas.getContext('2d'), {
+                    type: 'line',
+                    data: { labels: ['สะสม'], datasets: pointDatasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        layout: { padding: { top: 0, bottom: 0, left: 0, right: 6 } },
+                        plugins: {
+                            legend: { display: false },
+                            datalabels: {
+                                anchor: 'center',
+                                align: 'right',
+                                offset: 8,
+                                clip: false,
+                                color: (ctx) => ctx.dataset.borderColor,
+                                font: { weight: 'bold', size: 11 },
+                                display: (ctx) => (ctx.dataset.data[ctx.dataIndex] || 0) !== 0,
+                                formatter: (v) => v ? fmtK1(v) : ''
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => `${ctx.dataset.label}: ${fmtK1(ctx.parsed.y)} ${TG_UNIT_LABEL}`
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { size: 11, weight: 'bold' } } },
+                            y: {
+                                beginAtZero: true,
+                                grace: '12%',
+                                grid: { color: '#f1f5f9' },
+                                ticks: { font: { size: 10 } }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // สัดส่วน % ของยอดสะสม คิดจากยอดรวมจริง ไม่ใช่ค่าเฉลี่ยของ % รายเดือน
+            const finalDatasets = isPercent ? toPercentDatasets(summed) : summed;
+
+            return new Chart(canvas.getContext('2d'), {
+                type: 'bar',
+                data: { labels: ['สะสม'], datasets: finalDatasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { top: 0, bottom: 0, left: 0, right: 0 } },
+                    plugins: {
+                        legend: { display: false },
+                        // ใช้ค่าทั้งหมดชุดเดียวกับกราฟรายเดือน เพื่อให้หน้าตาตัวเลขเหมือนกันเป๊ะ
+                        datalabels: {
+                            anchor: 'center',
+                            align: 'center',
+                            clamp: true,
+                            rotation: (ctx) => {
+                                if (forceRotation !== undefined && forceRotation !== null) return forceRotation;
+                                if (isPercent) return 0;
+                                return tgSegmentHeight(ctx) >= 44 ? 270 : 0;
+                            },
+                            color: '#ffffff',
+                            font: (ctx) => {
+                                if (isPercent) {
+                                    return { weight: 'bold', size: tgSegmentHeight(ctx) >= 15 ? 11 : 9 };
+                                }
+                                return { weight: 'bold', size: tgSegmentHeight(ctx) >= 44 ? 13 : 10 };
+                            },
+                            display: (ctx) => (ctx.dataset.data[ctx.dataIndex] || 0) !== 0,
+                            formatter: (v) => {
+                                if (!v) return '';
+                                return isPercent ? `${v}%` : fmtK1(v);
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => isPercent
+                                    ? `${ctx.dataset.label}: ${ctx.parsed.y}%`
+                                    : `${ctx.dataset.label}: ${fmtK1(ctx.parsed.y)} ${TG_UNIT_LABEL}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11, weight: 'bold' } } },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            max: isPercent ? 100 : undefined,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+
         function renderTgStackedChart(canvasId, instanceSetter, oldInstance, labels, datasets, isPercent, registryKey, title, forceRotation) {
             const canvas = document.getElementById(canvasId);
             if (!canvas) return null;
@@ -4556,7 +4734,9 @@
                         },
                         color: '#ffffff',
                         font: (ctx) => {
-                            if (isPercent) return { weight: 'bold', size: 11 };
+                            if (isPercent) {
+                                return { weight: 'bold', size: tgSegmentHeight(ctx) >= 15 ? 11 : 9 };
+                            }
                             return { weight: 'bold', size: tgSegmentHeight(ctx) >= 44 ? 13 : 10 };
                         },
                         // ซ่อนตัวเลขเฉพาะแท่งที่เตี้ยจนใส่ข้อความไม่ลงจริงๆ
@@ -4566,7 +4746,7 @@
                             const segH = tgSegmentHeight(ctx);
                             if (segH === null) return true;
                             if (forceRotation !== undefined && forceRotation !== null) return segH >= 10;
-                            return isPercent ? segH >= 14 : segH >= 12;
+                            return isPercent ? segH >= 10 : segH >= 12;
                         },
                         formatter: (v) => {
                             if (!v) return '';
@@ -4665,6 +4845,18 @@
             return chart;
         }
 
+        // เมื่อขนาดหน้าจอเปลี่ยน แท่งในกราฟรายเดือนจะกว้างขึ้น/แคบลง
+        // ต้องวาดใหม่เพื่อให้แท่งสะสมกว้างเท่ากราฟรายเดือนเสมอ
+        let tgResizeTimer = null;
+        window.addEventListener('resize', () => {
+            const view = document.getElementById('view-typegrade');
+            if (!view || view.classList.contains('hidden')) return;
+            clearTimeout(tgResizeTimer);
+            tgResizeTimer = setTimeout(() => {
+                if (typeof updateTypeGradeTab === 'function') updateTypeGradeTab();
+            }, 250);
+        });
+
         function renderTgTypeCharts(records, start, end) {
             const { byKey, labels } = aggregateByMonth(records, r => normalizeTypeLabel(r.type), start, end);
             // ลำดับการซ้อนแท่ง (ล่างขึ้นบน): CPAC → N+X → S แล้วตามด้วย type อื่นที่อาจโผล่มา
@@ -4689,10 +4881,16 @@
             // กราฟนี้ให้ตัวเลขทุกตัวเอียงหัวไปทางซ้ายเหมือนกันหมด (ไม่สลับเป็นแนวนอนเวลาแท่งเตี้ย)
             tgTypeChartInstance = renderTgStackedChart('tgTypeChart', null, tgTypeChartInstance,
                 labels, typeDatasets, false, 'tg-type', 'ยอดผลิตแยก Type รายเดือน (รวมยอด CPAC)', 270);
+            const typeBarW = tgBarWidthOf(tgTypeChartInstance);
+            tgTypeCumInstance = renderTgCumChart('tgTypeCumChart', tgTypeCumInstance, typeDatasets, false, 270, false, typeBarW);
+            tgSyncCumHeight(tgTypeChartInstance, tgTypeCumInstance);
 
             // กราฟสัดส่วน (%) คิดจากยอดรวมทั้งหมด S + N+X + CPAC ในเดือนนั้น = 100%
+            // ต้องวาดกราฟรายเดือนก่อน แล้วค่อยอ่านความกว้างแท่งไปใช้กับกราฟสะสม
             tgTypePctChartInstance = renderTgStackedChart('tgTypePctChart', null, tgTypePctChartInstance,
                 labels, toPercentDatasets(typeDatasets), true, 'tg-type-pct', 'สัดส่วน Type รายเดือน (%) รวม CPAC');
+            tgTypePctCumInstance = renderTgCumChart('tgTypePctCumChart', tgTypePctCumInstance, typeDatasets, true, null, false, tgBarWidthOf(tgTypePctChartInstance));
+            tgSyncCumHeight(tgTypePctChartInstance, tgTypePctCumInstance);
         }
 
         // ยอดผลิต CPAC รายเดือนตามกิจการที่เลือก (ALL = รวมทุกกิจการ) — คืนค่าเป็น "พัน ลบ.ม."
@@ -4728,6 +4926,10 @@
                 labels, overviewDatasets, 'tg-grade', 'ยอดผลิตรวมทุกเกรด รายเดือน');
             tgGradePctChartInstance = renderTgStackedChart('tgGradePctChart', null, tgGradePctChartInstance,
                 labels, toPercentDatasets(overviewDatasets), true, 'tg-grade-pct', 'สัดส่วนเกรด รายเดือน (%)');
+            tgGradeCumInstance = renderTgCumChart('tgGradeCumChart', tgGradeCumInstance, overviewDatasets, false, null, true);
+            tgSyncCumHeight(tgGradeChartInstance, tgGradeCumInstance);
+            tgGradePctCumInstance = renderTgCumChart('tgGradePctCumChart', tgGradePctCumInstance, overviewDatasets, true, null, false, tgBarWidthOf(tgGradePctChartInstance));
+            tgSyncCumHeight(tgGradePctChartInstance, tgGradePctCumInstance);
 
             const grid = document.getElementById('tg-grade-grid');
             const countLabel = document.getElementById('tg-grade-count');
@@ -4736,6 +4938,8 @@
             // ล้างกราฟเดิมก่อนวาดใหม่ กัน memory leak และ canvas ค้าง
             tgGradeChartInstances.forEach(c => c.destroy());
             tgGradeChartInstances = [];
+            tgGradeCumInstances.forEach(c => c.destroy());
+            tgGradeCumInstances = [];
             grid.innerHTML = '';
 
             // ยอดรวมทุกเกรดในแต่ละเดือน ใช้คำนวณสัดส่วน % ของเกรดนั้นๆ
@@ -4750,7 +4954,7 @@
                 if (countLabel) countLabel.textContent = 'ไม่พบข้อมูลเกรด';
                 return;
             }
-            if (countLabel) countLabel.textContent = `พบ ${keys.length} เกรด: ${keys.join(' / ')}`;
+            if (countLabel) countLabel.textContent = `พบ ${keys.length} เกรด: ${keys.join(' / ')} • แท่งขวาของแต่ละกราฟ = ยอดสะสมทั้งช่วงที่เลือก`;
 
             keys.forEach((k, idx) => {
                 const canvasId = `tg-grade-chart-${idx}`;
@@ -4782,7 +4986,10 @@
                         รวม <b class="text-slate-800">${fmtThousand(gradeTotal)}</b> ${TG_UNIT_LABEL}
                         &bull; สัดส่วน <b class="text-slate-800">${sharePct.toFixed(1)}%</b>
                     </p>
-                    <div style="height: 260px;"><canvas id="${canvasId}"></canvas></div>
+                    <div class="flex gap-3" style="height: 260px;">
+                        <div class="flex-1 min-w-0"><canvas id="${canvasId}"></canvas></div>
+                        <div class="flex-shrink-0 border-l border-slate-200 pl-3" style="width: 132px;"><canvas id="${canvasId}-cum"></canvas></div>
+                    </div>
                 `;
                 grid.appendChild(card);
 
@@ -4826,6 +5033,11 @@
                     type: 'bar', data: { labels, datasets }, options
                 });
                 tgGradeChartInstances.push(chart);
+                const cumChart = renderTgCumChart(`${canvasId}-cum`, null, datasets, false, 270, false, tgBarWidthOf(chart));
+                if (cumChart) {
+                    tgSyncCumHeight(chart, cumChart);
+                    tgGradeCumInstances.push(cumChart);
+                }
                 brChartRegistry[chartKey] = { title: `ยอดผลิตรายเดือน — เกรด ${k}`, type: 'bar', labels, datasets, options };
             });
         }
