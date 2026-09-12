@@ -20,6 +20,15 @@
     <!-- Google Fonts (Inter & Prompt) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* แถบตัวกรองต้องเกาะใต้ header เสมอ ความสูง header เปลี่ยนตามขนาดจอ จึงคำนวณจาก JS */
+        .sticky-under-header { top: var(--hdr-h, 108px); }
+        /* บนมือถือ ตัวกรองเรียงเป็น 6 แถวซึ่งสูงเกือบเต็มจอ ถ้าปล่อยให้ sticky จะบังเนื้อหา */
+        @media (max-width: 767px) {
+            .sticky-under-header { position: static; }
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
         body { font-family: 'Prompt', 'Inter', sans-serif; }
         .card-shadow { box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05); }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -114,24 +123,24 @@
     </div>
 
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="bg-blue-600 text-white p-2.5 rounded-xl shadow-md flex items-center justify-center">
-                    <i class="fa-solid fa-chart-line text-xl"></i>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-0 sm:h-16 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex items-center space-x-3 min-w-0">
+                <div class="bg-blue-600 text-white p-2 sm:p-2.5 rounded-xl shadow-md flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-chart-line text-base sm:text-xl"></i>
                 </div>
-                <div>
-                    <h1 class="text-lg font-bold text-slate-900 leading-tight">Business Review & Sale Volume</h1>
-                    <p class="text-xs text-slate-500">หน่วย: ลูกบาศก์เมตร (ลบ.ม.) | รองรับ Multi-Sheet Excel (2026, 2025, PLAN2026, Status)</p>
+                <div class="min-w-0">
+                    <h1 class="text-sm sm:text-lg font-bold text-slate-900 leading-tight truncate">Business Review & Sale Volume</h1>
+                    <p class="text-xs text-slate-500 hidden md:block">หน่วย: ลูกบาศก์เมตร (ลบ.ม.) | รองรับ Multi-Sheet Excel (2026, 2025, PLAN2026, Status)</p>
                 </div>
             </div>
-            <div class="flex items-center space-x-3">
-                <label id="upload-label" for="excel-file" class="cursor-pointer bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 text-sm font-medium px-4 py-2 rounded-xl transition flex items-center space-x-2">
-                    <i class="fa-solid fa-file-excel text-emerald-600 text-base"></i>
-                    <span id="file-name-display">เลือกไฟล์ Excel (เลือกได้หลายไฟล์ หรือโหลดอัตโนมัติจาก GitHub)</span>
+            <div class="flex items-center gap-2 sm:space-x-3 min-w-0">
+                <label id="upload-label" for="excel-file" class="cursor-pointer bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 text-xs sm:text-sm font-medium px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl transition flex items-center gap-2 min-w-0 flex-1 sm:flex-none">
+                    <i class="fa-solid fa-file-excel text-emerald-600 text-sm sm:text-base shrink-0"></i>
+                    <span id="file-name-display" class="truncate">เลือกไฟล์ Excel (เลือกได้หลายไฟล์ หรือโหลดอัตโนมัติจาก GitHub)</span>
                 </label>
                 <input type="file" id="excel-file" accept=".xlsx, .xls" multiple class="hidden">
-                <div class="flex items-center gap-1 pl-2 border-l border-slate-200">
-                    <span id="login-user-chip" class="text-xs font-semibold text-slate-500 truncate max-w-[120px]"></span>
+                <div class="flex items-center gap-1 pl-2 border-l border-slate-200 shrink-0">
+                    <span id="login-user-chip" class="text-xs font-semibold text-slate-500 truncate max-w-[80px] sm:max-w-[120px] hidden sm:inline"></span>
                     <button id="btn-change-password" title="เปลี่ยนรหัสผ่าน" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition">
                         <i class="fa-solid fa-key text-sm"></i>
                     </button>
@@ -141,17 +150,17 @@
                 </div>
             </div>
         </div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-11 flex items-center gap-1 border-t border-slate-100">
-            <button id="tab-btn-business-review" onclick="switchTab('business-review')" class="h-full px-4 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 transition">
+        <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 h-11 flex items-center gap-1 border-t border-slate-100 overflow-x-auto no-scrollbar">
+            <button id="tab-btn-business-review" onclick="switchTab('business-review')" class="h-full px-2.5 sm:px-4 text-xs sm:text-sm font-semibold whitespace-nowrap shrink-0 border-b-2 border-blue-600 text-blue-600 transition">
                 <i class="fa-solid fa-chart-pie mr-1.5"></i>Business Review
             </button>
-            <button id="tab-btn-dashboard" onclick="switchTab('dashboard')" class="h-full px-4 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition">
+            <button id="tab-btn-dashboard" onclick="switchTab('dashboard')" class="h-full px-2.5 sm:px-4 text-xs sm:text-sm font-semibold whitespace-nowrap shrink-0 border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition">
                 <i class="fa-solid fa-industry mr-1.5"></i>แดชบอร์ดการผลิต
             </button>
-            <button id="tab-btn-typegrade" onclick="switchTab('typegrade')" class="h-full px-4 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition">
+            <button id="tab-btn-typegrade" onclick="switchTab('typegrade')" class="h-full px-2.5 sm:px-4 text-xs sm:text-sm font-semibold whitespace-nowrap shrink-0 border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition">
                 <i class="fa-solid fa-layer-group mr-1.5"></i>Type &amp; เกรด
             </button>
-            <button id="tab-btn-nps" onclick="switchTab('nps')" class="h-full px-4 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition">
+            <button id="tab-btn-nps" onclick="switchTab('nps')" class="h-full px-2.5 sm:px-4 text-xs sm:text-sm font-semibold whitespace-nowrap shrink-0 border-b-2 border-transparent text-slate-500 hover:text-slate-700 transition">
                 <i class="fa-solid fa-face-smile mr-1.5"></i>NPS
             </button>
         </div>
@@ -159,7 +168,7 @@
 
     <div id="view-dashboard" class="hidden">
 
-    <section class="bg-white border-b border-slate-200 py-3 sticky top-[108px] z-20 shadow-xs">
+    <section class="bg-white border-b border-slate-200 py-3 sticky sticky-under-header z-20 shadow-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3 items-center">
                 <div>
@@ -419,7 +428,7 @@
     <!-- /view-dashboard -->
 
     <div id="view-business-review">
-        <section class="bg-white border-b border-slate-200 py-3 sticky top-[108px] z-20 shadow-xs">
+        <section class="bg-white border-b border-slate-200 py-3 sticky sticky-under-header z-20 shadow-xs">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 items-end">
                     <div>
@@ -589,7 +598,7 @@
 
     <!-- ============ NPS TAB ============ -->
     <div id="view-nps" class="hidden">
-        <section class="bg-white border-b border-slate-200 py-3 sticky top-[108px] z-20 shadow-xs">
+        <section class="bg-white border-b border-slate-200 py-3 sticky sticky-under-header z-20 shadow-xs">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 items-end">
                     <div>
@@ -774,7 +783,7 @@
 
     <!-- ============ TYPE & GRADE TAB ============ -->
     <div id="view-typegrade" class="hidden">
-        <section class="bg-white border-b border-slate-200 py-3 sticky top-[108px] z-20 shadow-xs">
+        <section class="bg-white border-b border-slate-200 py-3 sticky sticky-under-header z-20 shadow-xs">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 items-end">
                     <div>
@@ -4843,6 +4852,22 @@
             });
             brChartRegistry[registryKey] = { title, type: 'line', labels, datasets: lineDatasets, options };
             return chart;
+        }
+
+        // header สูงไม่เท่ากันระหว่างมือถือกับจอใหญ่ (มือถือจะซ้อนสองแถว)
+        // จึงวัดความสูงจริงแล้วส่งให้ CSS ใช้เป็นระยะเกาะของแถบตัวกรอง กันไม่ให้ทับกัน
+        function syncHeaderHeight() {
+            const header = document.querySelector('header');
+            if (!header) return;
+            const h = Math.round(header.getBoundingClientRect().height);
+            if (h > 0) document.documentElement.style.setProperty('--hdr-h', h + 'px');
+        }
+        window.addEventListener('load', syncHeaderHeight);
+        window.addEventListener('resize', syncHeaderHeight);
+        document.addEventListener('DOMContentLoaded', syncHeaderHeight);
+        if (window.ResizeObserver) {
+            const hdr = document.querySelector('header');
+            if (hdr) new ResizeObserver(syncHeaderHeight).observe(hdr);
         }
 
         // เมื่อขนาดหน้าจอเปลี่ยน แท่งในกราฟรายเดือนจะกว้างขึ้น/แคบลง
