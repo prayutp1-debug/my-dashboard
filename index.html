@@ -538,7 +538,10 @@
                         </div>
                     </div>
 
-                    <div style="height: 400px;"><canvas id="brSalesOverviewChart"></canvas></div>
+                    <div class="flex gap-3" style="height: 400px;">
+                        <div class="flex-1 min-w-0"><canvas id="brSalesOverviewChart"></canvas></div>
+                        <div class="flex-shrink-0 border-l border-slate-100 pl-3" style="width: 180px;"><canvas id="brSalesOverviewCumChart"></canvas></div>
+                    </div>
                 </div>
 
                 <!-- 3. ยอดขายรายโรงงาน -->
@@ -558,7 +561,10 @@
                         <span>NPS ภาพรวมบริษัท รายเดือน</span>
                     </h2>
                     <p class="text-xs text-slate-400 mb-4">ตัวเลขสีแดง = NPS ต่ำกว่า 75%</p>
-                    <div style="height: 300px;"><canvas id="brNpsOverviewChart"></canvas></div>
+                    <div class="flex gap-3" style="height: 300px;">
+                        <div class="flex-1 min-w-0"><canvas id="brNpsOverviewChart"></canvas></div>
+                        <div class="flex-shrink-0 border-l border-slate-100 pl-3" style="width: 150px;"><canvas id="brNpsOverviewCumChart"></canvas></div>
+                    </div>
                 </div>
 
                 <!-- 5. NPS รายโรงงาน -->
@@ -1031,6 +1037,8 @@
         // Business Review chart instances
         let brSalesOverviewChartInstance = null;
         let brNpsOverviewChartInstance = null;
+        let brSalesOverviewCumInstance = null;
+        let brNpsOverviewCumInstance = null;
         let brFactorySalesChartInstances = [];
         let brFactoryNpsChartInstances = [];
 
@@ -3240,6 +3248,11 @@
                 options
             });
 
+            brSalesOverviewCumInstance = renderBRSalesCumChart(
+                'brSalesOverviewCumChart', brSalesOverviewCumInstance, datasets,
+                brSalesOverviewChartInstance, brMonthlyBadgesPluginLarge, 13
+            );
+
             brChartRegistry['sales-overview'] = {
                 title: document.getElementById('br-sales-overview-title')?.textContent || 'ยอดขายภาพรวมบริษัท',
                 type: 'bar',
@@ -3248,6 +3261,113 @@
                 options,
                 plugins: [brMonthlyBadgesPluginLarge]
             };
+        }
+
+        // ===== กราฟ "สะสม" ของแท็บ Business Review (วางขวามือของกราฟรายเดือน) =====
+
+        // ยอดขาย: แท่งกลุ่ม 2025 / PLAN 2026 / 2026 ของยอดรวมทั้งช่วง + badge Var/Grw แบบเดียวกับรายเดือน
+        function renderBRSalesCumChart(canvasId, oldInstance, datasets, mainChart, badgesPlugin, fontSize) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return null;
+            if (oldInstance) oldInstance.destroy();
+
+            const barW = tgBarWidthOf(mainChart);
+            const cumDatasets = datasets.map(d => ({
+                label: d.label,
+                data: [d.data.reduce((a, b) => a + (b || 0), 0)],
+                backgroundColor: d.backgroundColor,
+                borderRadius: d.borderRadius,
+                barThickness: barW || undefined,
+                maxBarThickness: barW || 40
+            }));
+
+            const chart = new Chart(canvas.getContext('2d'), {
+                type: 'bar',
+                data: { labels: ['สะสม'], datasets: cumDatasets },
+                plugins: badgesPlugin ? [badgesPlugin] : [],
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { top: 0, bottom: 0, left: 0, right: 0 } },
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            anchor: 'center',
+                            align: 'center',
+                            rotation: 270,
+                            color: '#1e293b',
+                            font: { weight: 'bold', size: fontSize },
+                            formatter: (v) => v > 0 ? v.toLocaleString('en-US') : ''
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('en-US')} ลบ.ม.`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: fontSize >= 12 ? 11 : 9, weight: 'bold' } } },
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: fontSize >= 12 ? 10 : 8 } } }
+                    }
+                }
+            });
+            tgSyncCumHeight(mainChart, chart);
+            return chart;
+        }
+
+        // NPS: ค่าเฉลี่ยทั้งช่วงแสดงเป็นจุด (NPS เป็น % จึงรวมเป็นยอดไม่ได้ ต้องใช้ค่าเฉลี่ย)
+        function renderBRNpsCumChart(canvasId, oldInstance, avg, mainChart, small) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return null;
+            if (oldInstance) oldInstance.destroy();
+
+            const value = (avg === null || avg === undefined || isNaN(avg)) ? null : Math.round(avg * 10) / 10;
+            const color = (value !== null && value < 75) ? '#ef4444' : '#10b981';
+
+            const chart = new Chart(canvas.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['เฉลี่ยสะสม'],
+                    datasets: [{
+                        label: 'NPS เฉลี่ยทั้งช่วง',
+                        data: [value],
+                        borderColor: color,
+                        backgroundColor: color,
+                        pointBackgroundColor: color,
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: small ? 5 : 6,
+                        pointHoverRadius: small ? 7 : 8,
+                        showLine: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { top: 0, bottom: 0, left: 0, right: 4 } },
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            anchor: 'center',
+                            align: 'right',
+                            offset: 6,
+                            clip: false,
+                            color: (value !== null && value < 75) ? '#ef4444' : '#047857',
+                            font: { weight: 'bold', size: small ? 10 : 11 },
+                            formatter: (v) => v === null ? '' : `${v}%`
+                        },
+                        tooltip: {
+                            callbacks: { label: (ctx) => `NPS เฉลี่ยทั้งช่วง: ${ctx.parsed.y}%` }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: small ? 8 : 10, weight: 'bold' } } },
+                        y: { beginAtZero: true, max: 100, grid: { color: '#f1f5f9' }, ticks: { font: { size: small ? 8 : 10 } } }
+                    }
+                }
+            });
+            tgSyncCumHeight(mainChart, chart);
+            return chart;
         }
 
         function renderBRFactorySalesCharts(records, start, end) {
@@ -3285,7 +3405,10 @@
                             <i class="fa-solid fa-expand text-[10px]"></i>
                         </button>
                     </div>
-                    <div style="height: 260px;"><canvas id="${canvasId}"></canvas></div>
+                    <div class="flex gap-2" style="height: 260px;">
+                        <div class="flex-1 min-w-0"><canvas id="${canvasId}"></canvas></div>
+                        <div class="flex-shrink-0 border-l border-slate-200 pl-2" style="width: 118px;"><canvas id="${canvasId}-cum"></canvas></div>
+                    </div>
                 `;
                 grid.appendChild(card);
 
@@ -3335,6 +3458,10 @@
                     options
                 });
                 brFactorySalesChartInstances.push(chart);
+                const salesCum = renderBRSalesCumChart(
+                    `${canvasId}-cum`, null, datasets, chart, brMonthlyBadgesPluginSmall, 10
+                );
+                if (salesCum) brFactorySalesChartInstances.push(salesCum);
 
                 // ตอนขยายใน modal ใช้ badge ขนาดใหญ่ + bottom padding มากขึ้น เพราะพื้นที่กว้างกว่า
                 const expandedOptions = { ...options, layout: { padding: { bottom: 42, top: 10 } } };
@@ -3408,6 +3535,18 @@
                     }
                 }
             });
+
+            // ค่าเฉลี่ยทั้งช่วง = เฉลี่ยจากทุกแถว NPS ในช่วงเดือนที่เลือก
+            let totalSum = 0, totalCount = 0;
+            for (let m = start; m <= end; m++) {
+                totalSum += monthlySum[m];
+                totalCount += monthlyCount[m];
+            }
+            brNpsOverviewCumInstance = renderBRNpsCumChart(
+                'brNpsOverviewCumChart', brNpsOverviewCumInstance,
+                totalCount > 0 ? totalSum / totalCount : null,
+                brNpsOverviewChartInstance, false
+            );
         }
 
         function renderBRFactoryNpsCharts(npsRecords, fcplnoToFactoryName, start, end) {
@@ -3442,7 +3581,10 @@
                 card.className = 'bg-slate-50 rounded-xl border border-slate-200 p-4';
                 card.innerHTML = `
                     <h4 class="text-sm font-bold text-slate-800 mb-2 leading-snug break-words" title="${f.name}">${f.name}</h4>
-                    <div style="height: 210px;"><canvas id="${canvasId}"></canvas></div>
+                    <div class="flex gap-2" style="height: 210px;">
+                        <div class="flex-1 min-w-0"><canvas id="${canvasId}"></canvas></div>
+                        <div class="flex-shrink-0 border-l border-slate-200 pl-2" style="width: 100px;"><canvas id="${canvasId}-cum"></canvas></div>
+                    </div>
                 `;
                 grid.appendChild(card);
 
@@ -3492,6 +3634,14 @@
                     }
                 });
                 brFactoryNpsChartInstances.push(chart);
+
+                const vals = data.filter(v => v !== null && v !== undefined);
+                const npsCum = renderBRNpsCumChart(
+                    `${canvasId}-cum`, null,
+                    vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null,
+                    chart, true
+                );
+                if (npsCum) brFactoryNpsChartInstances.push(npsCum);
             });
         }
 
@@ -4873,13 +5023,28 @@
         // เมื่อขนาดหน้าจอเปลี่ยน แท่งในกราฟรายเดือนจะกว้างขึ้น/แคบลง
         // ต้องวาดใหม่เพื่อให้แท่งสะสมกว้างเท่ากราฟรายเดือนเสมอ
         let tgResizeTimer = null;
+        let brResizeTimer = null;
+        let lastResizeWidth = window.innerWidth;
         window.addEventListener('resize', () => {
-            const view = document.getElementById('view-typegrade');
-            if (!view || view.classList.contains('hidden')) return;
-            clearTimeout(tgResizeTimer);
-            tgResizeTimer = setTimeout(() => {
-                if (typeof updateTypeGradeTab === 'function') updateTypeGradeTab();
-            }, 250);
+            // มือถือยิง resize ตอนแถบ URL ยืด/หด (ความกว้างไม่เปลี่ยน) ไม่ต้องวาดใหม่
+            if (window.innerWidth === lastResizeWidth) return;
+            lastResizeWidth = window.innerWidth;
+
+            const tgView = document.getElementById('view-typegrade');
+            if (tgView && !tgView.classList.contains('hidden')) {
+                clearTimeout(tgResizeTimer);
+                tgResizeTimer = setTimeout(() => {
+                    if (typeof updateTypeGradeTab === 'function') updateTypeGradeTab();
+                }, 250);
+            }
+            // Business Review ก็ต้องวาดใหม่ เพื่อให้แท่งสะสมกว้างเท่าแท่งรายเดือน
+            const brView = document.getElementById('view-business-review');
+            if (brView && !brView.classList.contains('hidden')) {
+                clearTimeout(brResizeTimer);
+                brResizeTimer = setTimeout(() => {
+                    if (typeof updateBusinessReview === 'function') updateBusinessReview();
+                }, 250);
+            }
         });
 
         function renderTgTypeCharts(records, start, end) {
