@@ -871,8 +871,9 @@
                 </div>
 
                 <!-- แถวที่ 2 ของ KPI: %Variance เทียบแผน -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div id="tg-plan-cpac-box" class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow relative overflow-hidden"></div>
+                    <div id="tg-plan-fc-box" class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow relative overflow-hidden"></div>
                     <div id="tg-plan-nx-box" class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow relative overflow-hidden"></div>
                     <div id="tg-plan-s-box" class="bg-white p-5 rounded-2xl border border-slate-100 card-shadow relative overflow-hidden"></div>
                 </div>
@@ -4694,12 +4695,15 @@
         }
 
         // ความสูง (px) ของแท่งย่อยหนึ่งชั้นในกราฟซ้อน ใช้ตัดสินใจว่าจะวางตัวเลขยังไง
+        // คำนวณจากสเกลแกน Y ไม่ใช่จากตำแหน่งจริงของแท่ง
+        // เพราะตอนวาดรอบแรก แท่งยังสูง 0 อยู่ (animation ยังไม่จบ) ปลั๊กอินจึงตัดสินว่า "เตี้ยเกินไป" แล้วซ่อนตัวเลข
+        // ทำให้ตัวเลขไม่ขึ้นจนกว่าจะเอาเมาส์ไปโดนกราฟแล้วมันวาดใหม่
         function tgSegmentHeight(ctx) {
-            const meta = ctx.chart.getDatasetMeta(ctx.datasetIndex);
-            const el = meta && meta.data ? meta.data[ctx.dataIndex] : null;
-            if (!el) return null;
-            const base = (el.base === undefined || el.base === null) ? el.y : el.base;
-            return Math.abs(base - el.y);
+            const yScale = ctx.chart.scales && ctx.chart.scales.y;
+            const v = ctx.dataset.data[ctx.dataIndex];
+            if (!yScale || v === null || v === undefined || isNaN(v)) return null;
+            const h = Math.abs(yScale.getPixelForValue(0) - yScale.getPixelForValue(Math.abs(v)));
+            return isFinite(h) ? h : null;
         }
 
         // forceRotation: บังคับองศาของตัวเลขทุกตัวในกราฟให้เท่ากัน (270 = หัวตัวอักษรเอียงไปทางซ้าย)
@@ -5286,6 +5290,13 @@
                 'CPAC เทียบแผน', 'fa-bullseye', 'text-sky-100',
                 getCpacMonthlyRaw(selectedEnt, start, end, cpacMonthly),
                 getCpacMonthlyRaw(selectedEnt, start, end, cpacPlanMonthly)
+            ));
+
+            // รวม FC ทุก Type (S + N+X) เทียบแผน PLAN2026 — ไม่รวม CPAC
+            setBox('tg-plan-fc-box', buildTgVarianceCard(
+                'FC รวมทุก Type เทียบแผน', 'fa-layer-group', 'text-indigo-100',
+                sumMonthlyRaw(records, 'prod2026', null, start, end),
+                sumMonthlyRaw(planRecords, 'plan2026', null, start, end)
             ));
 
             setBox('tg-plan-nx-box', buildTgVarianceCard(
